@@ -1,7 +1,7 @@
 ---
 title: "Email Address Format, PHP filter_var Function And RFC 5321"
 date: 2021-08-27T00:00:00+00:00
-author: Hakan Torun
+author: Radin Reth
 layout: post
 permalink: /email-address-format-php-filter-var-function-and-rfc-5321/
 categories: Genel

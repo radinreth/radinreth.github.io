@@ -1,7 +1,7 @@
 ---
 title: "Ephesus Jekyll Blog Theme"
 date: 2021-09-22T00:00:00+00:00
-author: Hakan Torun
+author: Radin Reth
 layout: post
 permalink: /ephesus-jekyll-blog-theme/
 categories: Genel

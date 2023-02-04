@@ -1,7 +1,7 @@
 ---
 title: "Elit in massa parturient a class condimentum suspendisse."
 date: 2021-09-11T00:00:00+00:00
-author: Hakan Torun
+author: Radin Reth
 layout: post
 permalink: /elit-in-massa-parturient-a-class-condimentum-suspendisse/
 categories: Genel

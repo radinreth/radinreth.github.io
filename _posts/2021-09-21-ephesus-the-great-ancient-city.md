@@ -1,7 +1,7 @@
 ---
 title: "Ephesus The Great Ancient City"
 date: 2021-09-21T00:00:00+00:00
-author: Hakan Torun
+author: Radin Reth
 layout: post
 permalink: /ephesus-the-great-ancient-city/
 categories: Genel
