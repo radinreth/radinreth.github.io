@@ -1,7 +1,0 @@
-@media only print{html{font-size:11px}.mw-100-print{max-width:100%}}
-
-@media print {
-  .page2 {
-    page-break-after: always;
-  }
-}
