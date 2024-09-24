@@ -1,6 +1,6 @@
 # radinr.github.io
 
-https://lilianweng.github.io/
+[Lil'Log](https://lilianweng.github.io/)
 
 ```
 hugo server --buildDrafts
