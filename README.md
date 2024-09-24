@@ -1,4 +1,4 @@
-# radinr.github.io
+# radinreth.github.io
 
 [Lil'Log](https://lilianweng.github.io/)
 
