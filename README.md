@@ -6,6 +6,8 @@
 hugo server --buildDrafts
 ```
 
+# Add content
+
 ```
-hugo new content content/posts/{my-first-post}.md
+hugo new content content/posts/{new-content}.md
 ```

@@ -1,4 +1,18 @@
-baseURL: https://example.org/
+baseURL: http://radinreth.me/
 languageCode: en-us
-title: My New Hugo Site
-theme: 'PaperMod'
+title: Radin Reth
+theme: ["PaperMod"]
+params:
+  homeInfoParams:
+    Title: 👋 Welcome to Radin Reth's Blog
+    Content: Hi, this is Radin. I’m just start documenting my learning notes in this blog. It's kinda overwhelming to learn but it is so interesting so just keep moving on 😉.
+
+  socialIcons: # optional
+    - name: "github"
+      url: "https://github.com/radinreth"
+    - name: "linkedin"
+      url: "https://www.linkedin.com/in/radinreth/"
+    - name: "twitter"
+      url: "https://twitter.com/radinreth"
+    - name: "facebook"
+      url: "https://www.facebook.com/radinreth"
