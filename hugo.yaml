@@ -3,6 +3,8 @@ languageCode: en-us
 title: Radin Reth
 theme: ["PaperMod"]
 params:
+  ShowReadingTime: true
+  ShowBreadCrumbs: true
   homeInfoParams:
     Title: 👋 Welcome to Radin Reth's Blog
     Content: Hi, this is Radin. I’m just start documenting my learning notes in this blog. It's kinda overwhelming to learn but it is so interesting so just keep moving on 😉.
