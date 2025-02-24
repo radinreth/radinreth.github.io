@@ -7,7 +7,14 @@ params:
   ShowBreadCrumbs: true
   homeInfoParams:
     Title: 👋 Welcome to Radin Reth's Blog
-    Content: Hi, this is Radin. I’m just start documenting my learning notes in this blog. It's kinda overwhelming to learn but it is so interesting so just keep moving on 😉.
+    Content: "Hi, this is Radin. I’m just start documenting my learning notes in this blog. It's kinda overwhelming to learn but it is so interesting so just keep moving on 😉. \n
+    
+      > If you get on the wrong train,\n
+      > make sure to get off to the nearest station.\n
+      > The longer it takes for you to get off,\n
+      > the more expensive the return trip will be.\n
+      --- anonymous.
+    "
 
   socialIcons: # optional
     - name: "github"
