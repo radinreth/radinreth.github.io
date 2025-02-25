@@ -8,3 +8,12 @@ TocOpen = false
 draft = false
 +++
 
+## MEXT scholarship
+
+MEXT is a generous scholarship provided by the government of Japan to many countries include Cambodia as well. 
+
+For general application, MEXT offers scholarship in 4 categories
+1. (R) Research students
+2. (U) Undergraduate students
+3. (C) College of Technology students
+4. (S) Specialized Training College students
