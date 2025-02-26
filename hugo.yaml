@@ -2,6 +2,29 @@ baseURL: http://radinreth.me/
 languageCode: en-us
 title: Radin Reth
 theme: ["PaperMod"]
+outputs:
+  home:
+    - HTML
+    - RSS
+    - JSON # necessary for search
+menu:
+  main:
+    - identifier: posts
+      name: Posts
+      url: /posts/
+      weight: 10
+    - identifier: archives
+      name: Archive
+      url: /archives/
+      weight: 20
+    - identifier: search
+      name: Search
+      url: /search/
+      weight: 30
+    - identifier: tags
+      name: Tags
+      url: /tags/
+      weight: 40
 params:
   ShowReadingTime: true
   ShowBreadCrumbs: true

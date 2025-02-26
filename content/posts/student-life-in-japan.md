@@ -6,6 +6,7 @@ summary = 'How I get here. Reality vs. Expectation'
 ShowToc = true
 TocOpen = false
 draft = false
+tags = ['japan']
 +++
 
 ## MEXT scholarship
