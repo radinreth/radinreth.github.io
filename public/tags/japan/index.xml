@@ -2,17 +2,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>Japan on Radin Reth</title>
-    <link>http://localhost:1313/tags/japan/</link>
+    <link>http://radinreth.me/tags/japan/</link>
     <description>Recent content in Japan on Radin Reth</description>
     <generator>Hugo -- 0.147.3</generator>
     <language>en-us</language>
     <lastBuildDate>Fri, 24 Jan 2025 00:00:00 +0000</lastBuildDate>
-    <atom:link href="http://localhost:1313/tags/japan/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://radinreth.me/tags/japan/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Student Life in Japan</title>
-      <link>http://localhost:1313/posts/student-life-in-japan/</link>
+      <link>http://radinreth.me/posts/student-life-in-japan/</link>
       <pubDate>Fri, 24 Jan 2025 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/posts/student-life-in-japan/</guid>
+      <guid>http://radinreth.me/posts/student-life-in-japan/</guid>
       <description>How I get here. Reality vs. Expectation</description>
     </item>
   </channel>

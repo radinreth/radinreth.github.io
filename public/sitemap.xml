@@ -2,37 +2,31 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>http://localhost:1313/posts/linear-algebra-done-right/</loc>
+    <loc>http://radinreth.me/posts/linear-algebra-done-right/</loc>
     <lastmod>2025-05-13T15:56:14+07:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/tags/math/</loc>
+    <loc>http://radinreth.me/tags/math/</loc>
     <lastmod>2025-05-13T15:56:14+07:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/posts/</loc>
+    <loc>http://radinreth.me/posts/</loc>
     <lastmod>2025-05-13T15:56:14+07:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/</loc>
+    <loc>http://radinreth.me/</loc>
     <lastmod>2025-05-13T15:56:14+07:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/tags/</loc>
+    <loc>http://radinreth.me/tags/</loc>
     <lastmod>2025-05-13T15:56:14+07:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/tags/japan/</loc>
+    <loc>http://radinreth.me/tags/japan/</loc>
     <lastmod>2025-01-24T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/posts/student-life-in-japan/</loc>
+    <loc>http://radinreth.me/posts/student-life-in-japan/</loc>
     <lastmod>2025-01-24T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/posts/my-second-post/</loc>
-    <lastmod>2025-01-19T15:59:36+09:00</lastmod>
+    <loc>http://radinreth.me/archives/</loc>
   </url><url>
-    <loc>http://localhost:1313/posts/my-first-post/</loc>
-    <lastmod>2025-01-19T15:58:17+09:00</lastmod>
+    <loc>http://radinreth.me/categories/</loc>
   </url><url>
-    <loc>http://localhost:1313/archives/</loc>
-  </url><url>
-    <loc>http://localhost:1313/categories/</loc>
-  </url><url>
-    <loc>http://localhost:1313/search/</loc>
+    <loc>http://radinreth.me/search/</loc>
   </url>
 </urlset>
