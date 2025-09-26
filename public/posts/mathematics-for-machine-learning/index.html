@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="noindex, nofollow">
+<title>Mathematics for Machine Learning | Radin Reth</title>
+<meta name="keywords" content="math">
+<meta name="description" content="
+    Table of Symbols
+    
+$a, b, c, \alpha, \beta, \gamma$ : Scalars are lowercase
+$\bold{x}, \bold{y}, \bold{z}$ : Vectors are bold lowercase
+$\bold{A}, \bold{B}, \bold{C}$ : Matrices are bold uppercase
+$\bold{x}^\top, \bold{A}^\top$ : Transpose of a vector or matrix
+$\bold{A}^{-1}$ : Inverse of a matrix
+$\braket{\bold{x}, \bold{y}}$ : Inner product of $\bold{x}$ and $\bold{y}$
+$\bold{x}^\top\bold{y}$ : Dot product of $\bold{x}$ and $\bold{y}$
+$B=(\bold{b_1}, \bold{b_2}, \bold{b_3})$ : (Ordered) tuple
+$\bold{B}=[\bold{b_1}, \bold{b_2}, \bold{b_3}]$ : Matrix of column vectors stacked horizontally
+$\mathcal{B}={\bold{b_1}, \bold{b_2}, \bold{b_3}}$ : Set of vectors (unordered)
+$\mathbb{Z}, \mathbb{N}$ : Integers and natural numbers, respectively
+$\mathbb{R}, \mathbb{C}$ : Real and complex numbers, respectively
+$\mathbb{R}^n$ : $n$-dimensional vector space of real numbers
+
+
+
+$\forall x$ : Universal quantifier: for all $x$
+$\exist x$ : Existential quantifier: there exists $x$
+$a := b$ : a is defined as b
+$a =: b$ : b is defined as a
+$a \propto b$ : $a$ is proportional to $b$, i.e., $a = \text{constant} \cdot b$
+$g \circ f$ : Function composition: &ldquo;$g$ after $f$&rdquo;
+$\iff$ : If and only if
+$\implies$ : Implies
+$\mathcal{A, C}$ : Sets
+$a \in \mathcal{A}$ : $a$ is an element of set $\mathcal{A}$
+$\empty$ : Empty set
+$\mathcal{A} \setminus \mathcal{B}$ : A without B: the set of elements in A but not in B
+$D$ : Number of dimensions; indexed by $d = 1, . . . , D$
+$N$ : Number of data points; indexed by $n = 1,&hellip;,N$
+
+
+
+$\bold{I}_m$ : Identity matrix of size ${m \times m}$
+$\bold{0}_{m \times n}$ : Matrix of zeros of size ${m \times n}$
+$\bold{1}_{m \times n}$ : Matrix of ones of size ${m \times n}$
+$\bold{e}_i$ : Standard/canonical vector (where $i$ is the component that is $1$)
+$dim$ : Dimensionality of vector space
+$rk(\bold{A})$ : Rank of matrix A
+$Im(\Phi)$ : Image of linear mapping $\Phi$
+$ker(\Phi)$ : Kernel (null space) of a linear mapping $\Phi$
+$span[\bold{b}_1]$ : Span (generating set) of $\bold{b}_1$
+$tr(\bold{A})$ : Trace of A
+$det(\bold{A})$ : Determinant of A
+$| \cdot |$ : Absolute value or determinant (depending on context)
+$\Vert \cdot \Vert$ : Norm; Euclidean, unless specified
+$\lambda$ : Eigenvalue or Lagrange multiplier
+$E_{\lambda}$ : Eigenspace corresponding to eigenvalue $\lambda$
+
+
+
+$\bold{x} \perp \bold{y}$ : Vectors x and y are orthogonal
+$V$ : Vector space
+$V^\top$ : Orthogonal complement of vector space V
+$\sum_{n=1}^N x_n$ : Sum of the $xn:x_1 &#43;&hellip;&#43;x_N$
+$\prod_{n=1}^N x_n$ : Product of the $x_n : x_1 \cdot&hellip;\cdot x_N$
+$\bold{\theta}$ : Parameter vector
+$\frac{\partial f}{\partial x}$ : Partial derivative of f with respect to x
+$\frac{df}{dx}$ : Total derivative of f with respect to x
+$\nabla$ : Gradient
+$f_* = min_x f(x)$ : The smallest function value of f
+$x_* \in arg min_x f(x)$ : The value $x_*$ that minimizes f (note: arg min returns a set of values)
+$\frak{L}$ : Lagrangian
+$\mathcal{L}$ : Negative log-likelihood
+$\binom{n}{k}$ : Binomial coefficient, $n$ choose $k$
+$\mathbb{V}_X[\bold{x}]$ : Variance of $\bold{x}$ with respect to the random variable $X$
+$\mathbb{E}_X[\bold{x}]$ : Expectation of $\bold{x}$ with respect to the random variable $X$
+$Cov_{X,Y}[\bold{x}, \bold{y}]$ : Covariance between x and y.
+$X \Vert Y | Z$ : $X$ is conditionally independent of $Y$ given $Z$
+$X \text{\textasciitilde} p$ : Random variable $X$ is distributed according to $p$
+$\mathcal{N}(\bold{\mu}, \bold{\Sigma})$ : Gaussian distribution with mean $\bold{\mu}$ and covariance $\bold{\Sigma}$
+$Ber(\mu)$ : Bernoulli distribution with parameter $\mu$
+$Bin(N, \mu)$ : Binomial distribution with parameters $N$, $\mu$
+$Beta(\alpha, \beta)$ : Beta distribution with parameters $\alpha$, $\beta$
+
+
+Table of Abbreviations and Acronyms">
+<meta name="author" content="">
+<link rel="canonical" href="http://localhost:1313/posts/mathematics-for-machine-learning/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.f49d66caae9ea0fd43f21f29e71a8d3e284517ed770f2aa86fa012953ad3c9ef.css" integrity="sha256-9J1myq6eoP1D8h8p5xqNPihFF&#43;13Dyqob6ASlTrTye8=" rel="preload stylesheet" as="style">
+<link rel="icon" href="http://localhost:1313/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/favicon-32x32.png">
+<link rel="apple-touch-icon" href="http://localhost:1313/apple-touch-icon.png">
+<link rel="mask-icon" href="http://localhost:1313/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="http://localhost:1313/posts/mathematics-for-machine-learning/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css" integrity="sha384-5TcZemv2l/9On385z///+d7MSYlvIEw9FuZTIdZ14vJLqWphw7e7ZPuOiCHJcFCP" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js" integrity="sha384-cMkvdD8LoxVzGF/RPUKAcvmm49FQ0oxwDF3BGKtDXcEc+T1b2N+teh/OJfpU0jr6" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js" integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh" crossorigin="anonymous"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+      renderMathInElement(document.body, {
+        
+        
+        delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '$', right: '$', display: false},
+            {left: '\\(', right: '\\)', display: false},
+            {left: '\\[', right: '\\]', display: true}
+        ],
+        
+        throwOnError : false
+      });
+  });
+</script>
+
+
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="http://localhost:1313/" accesskey="h" title="Radin Reth (Alt + H)">Radin Reth</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="http://localhost:1313/posts/" title="Posts">
+                    <span>Posts</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/archives/" title="Archive">
+                    <span>Archive</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/tags/" title="Tags">
+                    <span>Tags</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="http://localhost:1313/">Home</a>&nbsp;»&nbsp;<a href="http://localhost:1313/posts/">Posts</a></div>
+    <h1 class="post-title entry-hint-parent">
+      Mathematics for Machine Learning
+      <span class="entry-hint" title="Draft">
+        <svg xmlns="http://www.w3.org/2000/svg" height="35" viewBox="0 -960 960 960" fill="currentColor">
+          <path
+            d="M160-410v-60h300v60H160Zm0-165v-60h470v60H160Zm0-165v-60h470v60H160Zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22q0 11-4.5 22.5T862.09-380L643-160H520Zm300-263-37-37 37 37ZM580-220h38l121-122-18-19-19-18-122 121v38Zm141-141-19-18 37 37-18-19Z" />
+        </svg>
+      </span>
+    </h1>
+    <div class="post-meta"><span title='2025-05-23 11:17:02 +0700 +07'>May 23, 2025</span>&nbsp;·&nbsp;4 min
+
+</div>
+  </header> <div class="toc">
+    <details >
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#part-1--mathematical-foundations" aria-label="Part 1 : Mathematical Foundations">Part 1 : Mathematical Foundations</a><ul>
+                        
+                <li>
+                    <a href="#1-introduction-and-motivation" aria-label="1. Introduction and Motivation">1. Introduction and Motivation</a><ul>
+                        
+                <li>
+                    <a href="#11-finding-words-for-intuitions" aria-label="1.1 Finding Words for Intuitions">1.1 Finding Words for Intuitions</a></li>
+                <li>
+                    <a href="#12-two-ways-to-read-this-book" aria-label="1.2 Two Ways to Read This Book">1.2 Two Ways to Read This Book</a></li></ul>
+                </li>
+                <li>
+                    <a href="#2-linear-algebra" aria-label="2. Linear Algebra">2. Linear Algebra</a></li>
+                <li>
+                    <a href="#3-analytic-geometry" aria-label="3. Analytic Geometry">3. Analytic Geometry</a></li>
+                <li>
+                    <a href="#4-matrix-decompositions" aria-label="4. Matrix Decompositions">4. Matrix Decompositions</a></li>
+                <li>
+                    <a href="#5-vector-calculus" aria-label="5. Vector Calculus">5. Vector Calculus</a></li>
+                <li>
+                    <a href="#6-probability-and-distributions" aria-label="6. Probability and Distributions">6. Probability and Distributions</a></li>
+                <li>
+                    <a href="#7-continuous-optimization" aria-label="7. Continuous Optimization">7. Continuous Optimization</a></li></ul>
+                </li>
+                <li>
+                    <a href="#part-2--central-machine-learning-problems" aria-label="Part 2 : Central Machine Learning Problems">Part 2 : Central Machine Learning Problems</a>
+                </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><details>
+    <summary>Table of Symbols</summary>
+    <div><ul>
+<li>$a, b, c, \alpha, \beta, \gamma$ : Scalars are lowercase</li>
+<li>$\bold{x}, \bold{y}, \bold{z}$ : Vectors are bold lowercase</li>
+<li>$\bold{A}, \bold{B}, \bold{C}$ : Matrices are bold uppercase</li>
+<li>$\bold{x}^\top, \bold{A}^\top$ : Transpose of a vector or matrix</li>
+<li>$\bold{A}^{-1}$ : Inverse of a matrix</li>
+<li>$\braket{\bold{x}, \bold{y}}$ : Inner product of $\bold{x}$ and $\bold{y}$</li>
+<li>$\bold{x}^\top\bold{y}$ : Dot product of $\bold{x}$ and $\bold{y}$</li>
+<li>$B=(\bold{b_1}, \bold{b_2}, \bold{b_3})$ : (Ordered) tuple</li>
+<li>$\bold{B}=[\bold{b_1}, \bold{b_2}, \bold{b_3}]$ : Matrix of column vectors stacked horizontally</li>
+<li>$\mathcal{B}={\bold{b_1}, \bold{b_2}, \bold{b_3}}$ : Set of vectors (unordered)</li>
+<li>$\mathbb{Z}, \mathbb{N}$ : Integers and natural numbers, respectively</li>
+<li>$\mathbb{R}, \mathbb{C}$ : Real and complex numbers, respectively</li>
+<li>$\mathbb{R}^n$ : $n$-dimensional vector space of real numbers</li>
+</ul>
+<hr>
+<ul>
+<li>$\forall x$ : Universal quantifier: for all $x$</li>
+<li>$\exist x$ : Existential quantifier: there exists $x$</li>
+<li>$a := b$ : a is defined as b</li>
+<li>$a =: b$ : b is defined as a</li>
+<li>$a \propto b$ : $a$ is proportional to $b$, i.e., $a = \text{constant} \cdot b$</li>
+<li>$g \circ f$ : Function composition: &ldquo;$g$ after $f$&rdquo;</li>
+<li>$\iff$ : If and only if</li>
+<li>$\implies$ : Implies</li>
+<li>$\mathcal{A, C}$ : Sets</li>
+<li>$a \in \mathcal{A}$ : $a$ is an element of set $\mathcal{A}$</li>
+<li>$\empty$ : Empty set</li>
+<li>$\mathcal{A} \setminus \mathcal{B}$ : A without B: the set of elements in A but not in B</li>
+<li>$D$ : Number of dimensions; indexed by $d = 1, . . . , D$</li>
+<li>$N$ : Number of data points; indexed by $n = 1,&hellip;,N$</li>
+</ul>
+<hr>
+<ul>
+<li>$\bold{I}_m$ : Identity matrix of size ${m \times m}$</li>
+<li>$\bold{0}_{m \times n}$ : Matrix of zeros of size ${m \times n}$</li>
+<li>$\bold{1}_{m \times n}$ : Matrix of ones of size ${m \times n}$</li>
+<li>$\bold{e}_i$ : Standard/canonical vector (where $i$ is the component that is $1$)</li>
+<li>$dim$ : Dimensionality of vector space</li>
+<li>$rk(\bold{A})$ : Rank of matrix A</li>
+<li>$Im(\Phi)$ : Image of linear mapping $\Phi$</li>
+<li>$ker(\Phi)$ : Kernel (null space) of a linear mapping $\Phi$</li>
+<li>$span[\bold{b}_1]$ : Span (generating set) of $\bold{b}_1$</li>
+<li>$tr(\bold{A})$ : Trace of A</li>
+<li>$det(\bold{A})$ : Determinant of A</li>
+<li>$| \cdot |$ : Absolute value or determinant (depending on context)</li>
+<li>$\Vert \cdot \Vert$ : Norm; Euclidean, unless specified</li>
+<li>$\lambda$ : Eigenvalue or Lagrange multiplier</li>
+<li>$E_{\lambda}$ : Eigenspace corresponding to eigenvalue $\lambda$</li>
+</ul>
+<hr>
+<ul>
+<li>$\bold{x} \perp \bold{y}$ : Vectors x and y are orthogonal</li>
+<li>$V$ : Vector space</li>
+<li>$V^\top$ : Orthogonal complement of vector space V</li>
+<li>$\sum_{n=1}^N x_n$ : Sum of the $xn:x_1 +&hellip;+x_N$</li>
+<li>$\prod_{n=1}^N x_n$ : Product of the $x_n : x_1 \cdot&hellip;\cdot x_N$</li>
+<li>$\bold{\theta}$ : Parameter vector</li>
+<li>$\frac{\partial f}{\partial x}$ : Partial derivative of f with respect to x</li>
+<li>$\frac{df}{dx}$ : Total derivative of f with respect to x</li>
+<li>$\nabla$ : Gradient</li>
+<li>$f_* = min_x f(x)$ : The smallest function value of f</li>
+<li>$x_* \in arg min_x f(x)$ : The value $x_*$ that minimizes f (note: arg min returns a set of values)</li>
+<li>$\frak{L}$ : Lagrangian</li>
+<li>$\mathcal{L}$ : Negative log-likelihood</li>
+<li>$\binom{n}{k}$ : Binomial coefficient, $n$ choose $k$</li>
+<li>$\mathbb{V}_X[\bold{x}]$ : Variance of $\bold{x}$ with respect to the random variable $X$</li>
+<li>$\mathbb{E}_X[\bold{x}]$ : Expectation of $\bold{x}$ with respect to the random variable $X$</li>
+<li>$Cov_{X,Y}[\bold{x}, \bold{y}]$ : Covariance between x and y.</li>
+<li>$X \Vert Y | Z$ : $X$ is conditionally independent of $Y$ given $Z$</li>
+<li>$X \text{\textasciitilde} p$ : Random variable $X$ is distributed according to $p$</li>
+<li>$\mathcal{N}(\bold{\mu}, \bold{\Sigma})$ : Gaussian distribution with mean $\bold{\mu}$ and covariance $\bold{\Sigma}$</li>
+<li>$Ber(\mu)$ : Bernoulli distribution with parameter $\mu$</li>
+<li>$Bin(N, \mu)$ : Binomial distribution with parameters $N$, $\mu$</li>
+<li>$Beta(\alpha, \beta)$ : Beta distribution with parameters $\alpha$, $\beta$</li>
+</ul>
+<hr>
+<p>Table of Abbreviations and Acronyms</p>
+<ul>
+<li>e.g. : Exempli gratia (Latin: for example)</li>
+<li>GMM : Gaussian mixture model</li>
+<li>i.e. : Id est (Latin: this means)</li>
+<li>i.i.d. : Independent, identically distributed</li>
+<li>MAP : Maximum a posteriori</li>
+<li>MLE : Maximum likelihood estimation/estimator</li>
+<li>ONB : Orthonormal basis</li>
+<li>PCA : Principal component analysis</li>
+<li>PPCA : Probabilistic principal component analysis</li>
+<li>REF : Row-echelon form</li>
+<li>SPD : Symmetric, positive definite</li>
+<li>SVM : Support vector machine</li>
+</ul></div>
+</details>
+<h2 id="part-1--mathematical-foundations">Part 1 : Mathematical Foundations<a hidden class="anchor" aria-hidden="true" href="#part-1--mathematical-foundations">#</a></h2>
+<h3 id="1-introduction-and-motivation">1. Introduction and Motivation<a hidden class="anchor" aria-hidden="true" href="#1-introduction-and-motivation">#</a></h3>
+<p>Core concepts of machine learning:</p>
+<ol>
+<li>data</li>
+<li>a model</li>
+<li>learning</li>
+</ol>
+<p>The goal of machine learning is to extract patterns from <em>data</em>.</p>
+<p><em>A model</em> is said to learn from data if its performance on a given task improves after the data is taken into account.</p>
+<p><em>Learning</em> is a way to automatically find patterns and structure in data by optimizing the parameters of the model.</p>
+<h4 id="11-finding-words-for-intuitions">1.1 Finding Words for Intuitions<a hidden class="anchor" aria-hidden="true" href="#11-finding-words-for-intuitions">#</a></h4>
+<p>Machine learning algorithm to mean</p>
+<ul>
+<li>a system that makes predictions based on input data refered to <em>predictor</em>.</li>
+<li>adapts some internal parameters of the predictor so that it performs well on future unseen input data refered to <em>training</em></li>
+</ul>
+<p><em>A model</em> is used to described a process for generating data.</p>
+<p><em>Training</em> means to use the data to optimize some parameters of the model.</p>
+<p>summary</p>
+<ol>
+<li>data represented as vectors</li>
+<li>choose an appropriate model,</li>
+<li>learn from data</li>
+</ol>
+<h4 id="12-two-ways-to-read-this-book">1.2 Two Ways to Read This Book<a hidden class="anchor" aria-hidden="true" href="#12-two-ways-to-read-this-book">#</a></h4>
+<h3 id="2-linear-algebra">2. Linear Algebra<a hidden class="anchor" aria-hidden="true" href="#2-linear-algebra">#</a></h3>
+<h3 id="3-analytic-geometry">3. Analytic Geometry<a hidden class="anchor" aria-hidden="true" href="#3-analytic-geometry">#</a></h3>
+<h3 id="4-matrix-decompositions">4. Matrix Decompositions<a hidden class="anchor" aria-hidden="true" href="#4-matrix-decompositions">#</a></h3>
+<h3 id="5-vector-calculus">5. Vector Calculus<a hidden class="anchor" aria-hidden="true" href="#5-vector-calculus">#</a></h3>
+<h3 id="6-probability-and-distributions">6. Probability and Distributions<a hidden class="anchor" aria-hidden="true" href="#6-probability-and-distributions">#</a></h3>
+<h3 id="7-continuous-optimization">7. Continuous Optimization<a hidden class="anchor" aria-hidden="true" href="#7-continuous-optimization">#</a></h3>
+<h2 id="part-2--central-machine-learning-problems">Part 2 : Central Machine Learning Problems<a hidden class="anchor" aria-hidden="true" href="#part-2--central-machine-learning-problems">#</a></h2>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="http://localhost:1313/tags/math/">Math</a></li>
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2025 <a href="http://localhost:1313/">Radin Reth</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>
