@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Kas on Radin Reth</title>
+    <link>http://localhost:1313/tags/kas/</link>
+    <description>Recent content in Kas on Radin Reth</description>
+    <generator>Hugo -- 0.147.3</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 09 May 2026 00:00:00 +0000</lastBuildDate>
+    <atom:link href="http://localhost:1313/tags/kas/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Re-engineering the KAS Platform — Phase 1</title>
+      <link>http://localhost:1313/posts/saambat-kas-re-engineering-phase-1/</link>
+      <pubDate>Sat, 09 May 2026 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/posts/saambat-kas-re-engineering-phase-1/</guid>
+      <description>Notes from four months re-architecting SAAMBAT/KAS at TSC: replacing the gateway, dropping internal E2EE, consolidating IAM, standardizing observability, and putting Kafka in the middle.</description>
+    </item>
+  </channel>
+</rss>
