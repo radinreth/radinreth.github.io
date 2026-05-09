@@ -5,7 +5,7 @@ date = '2026-05-09'
 summary = "Notes from four months re-architecting SAAMBAT/KAS at TSC: replacing the gateway, dropping internal E2EE, consolidating IAM, standardizing observability, and putting Kafka in the middle."
 ShowToc = true
 TocOpen = false
-draft = true
+draft = false
 tags = ['saambat', 'kas', 'tsc', 're-architecture']
 +++
 
