@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Payments on Radin Reth</title>
+    <link>http://radinreth.me/tags/payments/</link>
+    <description>Recent content in Payments on Radin Reth</description>
+    <generator>Hugo -- 0.147.3</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 20 Oct 2026 00:00:00 +0000</lastBuildDate>
+    <atom:link href="http://radinreth.me/tags/payments/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>CamWallet v2: A Closed Ledger With No Bank in the Path</title>
+      <link>http://radinreth.me/posts/camwallet-v2-closed-ledger/</link>
+      <pubDate>Tue, 20 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>http://radinreth.me/posts/camwallet-v2-closed-ledger/</guid>
+      <description>How CamWallet&amp;rsquo;s second version changed two assumptions, who decides eligibility and where payment happens, and why everything else in the design follows from those two changes.</description>
+    </item>
+  </channel>
+</rss>

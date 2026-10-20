@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Nuxt on Radin Reth</title>
+    <link>http://radinreth.me/tags/nuxt/</link>
+    <description>Recent content in Nuxt on Radin Reth</description>
+    <generator>Hugo -- 0.147.3</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 20 Oct 2026 00:00:00 +0000</lastBuildDate>
+    <atom:link href="http://radinreth.me/tags/nuxt/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>ESB-MOT: Testing a Platform Spread Across Twenty Repos</title>
+      <link>http://radinreth.me/posts/esb-mot-testing-twenty-repos/</link>
+      <pubDate>Tue, 20 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>http://radinreth.me/posts/esb-mot-testing-twenty-repos/</guid>
+      <description>MOT had no tests running in CI, and the defects that reached dev clustered at the boundaries between services. Notes on re-verifying a stale bug ledger, a stale department header, and a testing strategy built around where defects actually land.</description>
+    </item>
+  </channel>
+</rss>

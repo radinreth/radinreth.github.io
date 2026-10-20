@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>CamWallet: What Two Retrospectives Taught Me About Building With an Agent Loop | Radin Reth</title>
+<meta name="keywords" content="camwallet, tsc, ai-assisted-development, retrospective, process">
+<meta name="description" content="CamWallet&rsquo;s v2 epics were built with an unattended AI agent loop. Two retrospectives showed the same pattern each time: the loop built too much, a human review cut it back, and the history recorded both.">
+<meta name="author" content="">
+<link rel="canonical" href="http://radinreth.me/posts/camwallet-building-with-an-agent-loop/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.f49d66caae9ea0fd43f21f29e71a8d3e284517ed770f2aa86fa012953ad3c9ef.css" integrity="sha256-9J1myq6eoP1D8h8p5xqNPihFF&#43;13Dyqob6ASlTrTye8=" rel="preload stylesheet" as="style">
+<link rel="icon" href="http://radinreth.me/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://radinreth.me/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://radinreth.me/favicon-32x32.png">
+<link rel="apple-touch-icon" href="http://radinreth.me/apple-touch-icon.png">
+<link rel="mask-icon" href="http://radinreth.me/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="http://radinreth.me/posts/camwallet-building-with-an-agent-loop/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript>
+<meta property="og:url" content="http://radinreth.me/posts/camwallet-building-with-an-agent-loop/">
+  <meta property="og:site_name" content="Radin Reth">
+  <meta property="og:title" content="CamWallet: What Two Retrospectives Taught Me About Building With an Agent Loop">
+  <meta property="og:description" content="CamWallet’s v2 epics were built with an unattended AI agent loop. Two retrospectives showed the same pattern each time: the loop built too much, a human review cut it back, and the history recorded both.">
+  <meta property="og:locale" content="en-us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-10-20T00:00:00+00:00">
+    <meta property="article:modified_time" content="2026-10-20T00:00:00+00:00">
+    <meta property="article:tag" content="Camwallet">
+    <meta property="article:tag" content="Tsc">
+    <meta property="article:tag" content="Ai-Assisted-Development">
+    <meta property="article:tag" content="Retrospective">
+    <meta property="article:tag" content="Process">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="CamWallet: What Two Retrospectives Taught Me About Building With an Agent Loop">
+<meta name="twitter:description" content="CamWallet&rsquo;s v2 epics were built with an unattended AI agent loop. Two retrospectives showed the same pattern each time: the loop built too much, a human review cut it back, and the history recorded both.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "http://radinreth.me/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "CamWallet: What Two Retrospectives Taught Me About Building With an Agent Loop",
+      "item": "http://radinreth.me/posts/camwallet-building-with-an-agent-loop/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "CamWallet: What Two Retrospectives Taught Me About Building With an Agent Loop",
+  "name": "CamWallet: What Two Retrospectives Taught Me About Building With an Agent Loop",
+  "description": "CamWallet\u0026rsquo;s v2 epics were built with an unattended AI agent loop. Two retrospectives showed the same pattern each time: the loop built too much, a human review cut it back, and the history recorded both.",
+  "keywords": [
+    "camwallet", "tsc", "ai-assisted-development", "retrospective", "process"
+  ],
+  "articleBody": "The setup For CamWallet v2 I drove implementation through the BMad Method and a CLI called bmad-loop. BMad is a set of AI agent skills for planning, writing stories, implementing and reviewing. bmad-loop runs the implementation phase unattended. It picks the next story from a sprint file, writes a spec, implements it, runs a verify gate and moves on. Our verify gate was a backend compile plus a frontend typecheck.\nI ran retrospectives after Epic 1 (merchant management) and Epic 3 (scheme participation). Both epics shipped and both were accepted. Both retrospectives also found the same problem from different directions, so I’m writing them up together.\nEpic 1: built, then removed Epic 1 had seven stories. The unattended run implemented all of them, along with seven capabilities that a pilot didn’t need. These included member management, a module API, an idempotency key, a member National ID field, server-side search and paging, merchant status and reference uniqueness.\nHuman review took them back out. The squashed feature commit was about 2,500 lines. After the slim-down, the net change against dev was about 550 lines across 13 files. Tests dominated the churn. One service test file gained 1,482 lines and lost 1,322.\nEach removed capability became a tracked deferral, so the work wasn’t wasted as a record of intent. It was wasted as build time and review time.\nThe retrospective produced four process lessons.\nSlim the scope before building, not after. Before the next run, I would mark each story’s pilot-minimal scope and its deferrals in the epic context file, and apply a minimal-test rule of one service test per rule and one controller test per route. The loop’s independent review never ran. It was set to trigger only when recommended, and no pass recommended it. Every defect in Epic 1 was found by a human. I had to decide whether to make the loop review always or keep human review as the gate on purpose. Don’t rewrite history during review. I squashed and force-pushed while the PR was open, and the commit references in our docs moved six times. During review I should add commits and squash once, at merge. Clean up after the run. Archive the paused run and mark the epic done in the sprint file. Epic 3: same pattern, smaller Epic 3 was smaller, with three stories and a net change of 4 files and about 224 added lines. I had applied the Epic 1 lessons, so I expected a clean run. It wasn’t clean.\nAbout 250 lines landed on dev and never survived. One story added a custom JSON deserializer and the next story removed it. A 104-line controller test grew to 151 lines and was then deleted by a refactor commit. The retrospective traced this to five causes.\nThe epic started on a stale base. dev had already gained a component that did the deserializer’s job, but the plan still said to build one, and the agent followed the plan. It built what the plan described without checking what the code already did. “Minimal tests” failed in both directions. The first pass wrote about 480 test lines despite the rule. The trim then cut too deep and dropped the only assertions that checked membership and roles. The rule said how many tests to write but not which ones mattered. Memory pressure killed the run twice. Each kill needed a manual rollback. Accepting the committed work as a new baseline then mismatched the spec’s recorded baseline, so the loop deferred a story that was already finished. A proposal encoded a wrong framework assumption. It planned to catch a wrapped DbActionExecutionException, but Spring Data JDBC throws DuplicateKeyException directly. The test suite caught it. Four course-correction proposals in two days reshaped one small epic. The merged commits didn’t line up with story boundaries. The pattern Both retrospectives show an agent loop that is good at producing code that matches a plan and poor at noticing when the plan is out of date. It doesn’t push back on scope, so it builds everything the plan mentions. It doesn’t check the current branch, so it rebuilds things that already exist. It treats a test-count rule as a quota rather than a judgement about risk.\nNone of these are coding failures. The code compiled, the tests passed and the reviews found real but ordinary defects. The cost came from building the wrong amount of the right thing.\nWhat I’m changing The lessons point at how I prepare work, not at how the loop runs.\nWrite the scope down before the run. Each story should list what the pilot needs and what is deferred, so the agent can’t build past it without contradicting an explicit line. Name tests by risk instead of counting them. The backend instructions now say not to test CRUD round-trips or simple 404s. Tests that protect tenancy are different. A cross-organisation request must return 404, and a non-member must be forbidden on every scheme route. Check the plan against dev first. A plan written a week ago can describe code that someone has since merged. Epic 4 opened with a story that restored the membership and role tests the Epic 3 trim had dropped, and added a payable-currency check. Even that story went through one more round of cutting. It added a 404 test for an unknown ID and then removed it before merge, because the lean-test rule says simple 404s aren’t worth a test. The cross-organisation 404s stayed, because they protect tenancy. I think that’s the rule working as intended. The line between the two cases is now written down, so the agent and I don’t have to argue it from scratch each time.\nReflection An unattended loop makes it cheap to produce code and expensive to produce the wrong amount of it. Most of my judgement as the engineer now goes into what happens before the run. I decide what the pilot needs, which tests protect something real, and whether the plan still matches the code. When I did that work up front, the loop’s output needed little review. When I skipped it, I spent the review deleting code.\n",
+  "wordCount" : "1021",
+  "inLanguage": "en",
+  "datePublished": "2026-10-20T00:00:00Z",
+  "dateModified": "2026-10-20T00:00:00Z",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "http://radinreth.me/posts/camwallet-building-with-an-agent-loop/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Radin Reth",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "http://radinreth.me/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="http://radinreth.me/" accesskey="h" title="Radin Reth (Alt + H)">Radin Reth</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="http://radinreth.me/posts/" title="Posts">
+                    <span>Posts</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://radinreth.me/archives/" title="Archive">
+                    <span>Archive</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://radinreth.me/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://radinreth.me/tags/" title="Tags">
+                    <span>Tags</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="http://radinreth.me/">Home</a>&nbsp;»&nbsp;<a href="http://radinreth.me/posts/">Posts</a></div>
+    <h1 class="post-title entry-hint-parent">
+      CamWallet: What Two Retrospectives Taught Me About Building With an Agent Loop
+    </h1>
+    <div class="post-meta"><span title='2026-10-20 00:00:00 +0000 UTC'>October 20, 2026</span>&nbsp;·&nbsp;5 min
+
+</div>
+  </header> <div class="toc">
+    <details >
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#the-setup" aria-label="The setup">The setup</a></li>
+                <li>
+                    <a href="#epic-1-built-then-removed" aria-label="Epic 1: built, then removed">Epic 1: built, then removed</a></li>
+                <li>
+                    <a href="#epic-3-same-pattern-smaller" aria-label="Epic 3: same pattern, smaller">Epic 3: same pattern, smaller</a></li>
+                <li>
+                    <a href="#the-pattern" aria-label="The pattern">The pattern</a></li>
+                <li>
+                    <a href="#what-im-changing" aria-label="What I&rsquo;m changing">What I&rsquo;m changing</a></li>
+                <li>
+                    <a href="#reflection" aria-label="Reflection">Reflection</a>
+                </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><h2 id="the-setup">The setup<a hidden class="anchor" aria-hidden="true" href="#the-setup">#</a></h2>
+<p>For CamWallet v2 I drove implementation through the BMad Method and a CLI called bmad-loop. BMad is a set of AI agent skills for planning, writing stories, implementing and reviewing. bmad-loop runs the implementation phase unattended. It picks the next story from a sprint file, writes a spec, implements it, runs a verify gate and moves on. Our verify gate was a backend compile plus a frontend typecheck.</p>
+<p>I ran retrospectives after Epic 1 (merchant management) and Epic 3 (scheme participation). Both epics shipped and both were accepted. Both retrospectives also found the same problem from different directions, so I&rsquo;m writing them up together.</p>
+<h2 id="epic-1-built-then-removed">Epic 1: built, then removed<a hidden class="anchor" aria-hidden="true" href="#epic-1-built-then-removed">#</a></h2>
+<p>Epic 1 had seven stories. The unattended run implemented all of them, along with seven capabilities that a pilot didn&rsquo;t need. These included member management, a module API, an idempotency key, a member National ID field, server-side search and paging, merchant status and reference uniqueness.</p>
+<p>Human review took them back out. The squashed feature commit was about 2,500 lines. After the slim-down, the net change against <code>dev</code> was about 550 lines across 13 files. Tests dominated the churn. One service test file gained 1,482 lines and lost 1,322.</p>
+<p>Each removed capability became a tracked deferral, so the work wasn&rsquo;t wasted as a record of intent. It was wasted as build time and review time.</p>
+<p>The retrospective produced four process lessons.</p>
+<ol>
+<li><strong>Slim the scope before building, not after.</strong> Before the next run, I would mark each story&rsquo;s pilot-minimal scope and its deferrals in the epic context file, and apply a minimal-test rule of one service test per rule and one controller test per route.</li>
+<li><strong>The loop&rsquo;s independent review never ran.</strong> It was set to trigger only when recommended, and no pass recommended it. Every defect in Epic 1 was found by a human. I had to decide whether to make the loop review always or keep human review as the gate on purpose.</li>
+<li><strong>Don&rsquo;t rewrite history during review.</strong> I squashed and force-pushed while the PR was open, and the commit references in our docs moved six times. During review I should add commits and squash once, at merge.</li>
+<li><strong>Clean up after the run.</strong> Archive the paused run and mark the epic done in the sprint file.</li>
+</ol>
+<h2 id="epic-3-same-pattern-smaller">Epic 3: same pattern, smaller<a hidden class="anchor" aria-hidden="true" href="#epic-3-same-pattern-smaller">#</a></h2>
+<p>Epic 3 was smaller, with three stories and a net change of 4 files and about 224 added lines. I had applied the Epic 1 lessons, so I expected a clean run. It wasn&rsquo;t clean.</p>
+<p>About 250 lines landed on <code>dev</code> and never survived. One story added a custom JSON deserializer and the next story removed it. A 104-line controller test grew to 151 lines and was then deleted by a refactor commit. The retrospective traced this to five causes.</p>
+<ul>
+<li><strong>The epic started on a stale base.</strong> <code>dev</code> had already gained a component that did the deserializer&rsquo;s job, but the plan still said to build one, and the agent followed the plan. It built what the plan described without checking what the code already did.</li>
+<li><strong>&ldquo;Minimal tests&rdquo; failed in both directions.</strong> The first pass wrote about 480 test lines despite the rule. The trim then cut too deep and dropped the only assertions that checked membership and roles. The rule said how many tests to write but not which ones mattered.</li>
+<li><strong>Memory pressure killed the run twice.</strong> Each kill needed a manual rollback. Accepting the committed work as a new baseline then mismatched the spec&rsquo;s recorded baseline, so the loop deferred a story that was already finished.</li>
+<li><strong>A proposal encoded a wrong framework assumption.</strong> It planned to catch a wrapped <code>DbActionExecutionException</code>, but Spring Data JDBC throws <code>DuplicateKeyException</code> directly. The test suite caught it.</li>
+<li><strong>Four course-correction proposals in two days</strong> reshaped one small epic. The merged commits didn&rsquo;t line up with story boundaries.</li>
+</ul>
+<h2 id="the-pattern">The pattern<a hidden class="anchor" aria-hidden="true" href="#the-pattern">#</a></h2>
+<p>Both retrospectives show an agent loop that is good at producing code that matches a plan and poor at noticing when the plan is out of date. It doesn&rsquo;t push back on scope, so it builds everything the plan mentions. It doesn&rsquo;t check the current branch, so it rebuilds things that already exist. It treats a test-count rule as a quota rather than a judgement about risk.</p>
+<p>None of these are coding failures. The code compiled, the tests passed and the reviews found real but ordinary defects. The cost came from building the wrong amount of the right thing.</p>
+<h2 id="what-im-changing">What I&rsquo;m changing<a hidden class="anchor" aria-hidden="true" href="#what-im-changing">#</a></h2>
+<p>The lessons point at how I prepare work, not at how the loop runs.</p>
+<ul>
+<li><strong>Write the scope down before the run.</strong> Each story should list what the pilot needs and what is deferred, so the agent can&rsquo;t build past it without contradicting an explicit line.</li>
+<li><strong>Name tests by risk instead of counting them.</strong> The backend instructions now say not to test CRUD round-trips or simple 404s. Tests that protect tenancy are different. A cross-organisation request must return 404, and a non-member must be forbidden on every scheme route.</li>
+<li><strong>Check the plan against <code>dev</code> first.</strong> A plan written a week ago can describe code that someone has since merged.</li>
+</ul>
+<p>Epic 4 opened with a story that restored the membership and role tests the Epic 3 trim had dropped, and added a payable-currency check. Even that story went through one more round of cutting. It added a 404 test for an unknown ID and then removed it before merge, because the lean-test rule says simple 404s aren&rsquo;t worth a test. The cross-organisation 404s stayed, because they protect tenancy. I think that&rsquo;s the rule working as intended. The line between the two cases is now written down, so the agent and I don&rsquo;t have to argue it from scratch each time.</p>
+<h2 id="reflection">Reflection<a hidden class="anchor" aria-hidden="true" href="#reflection">#</a></h2>
+<p>An unattended loop makes it cheap to produce code and expensive to produce the wrong amount of it. Most of my judgement as the engineer now goes into what happens before the run. I decide what the pilot needs, which tests protect something real, and whether the plan still matches the code. When I did that work up front, the loop&rsquo;s output needed little review. When I skipped it, I spent the review deleting code.</p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="http://radinreth.me/tags/camwallet/">Camwallet</a></li>
+      <li><a href="http://radinreth.me/tags/tsc/">Tsc</a></li>
+      <li><a href="http://radinreth.me/tags/ai-assisted-development/">Ai-Assisted-Development</a></li>
+      <li><a href="http://radinreth.me/tags/retrospective/">Retrospective</a></li>
+      <li><a href="http://radinreth.me/tags/process/">Process</a></li>
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="http://radinreth.me/">Radin Reth</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

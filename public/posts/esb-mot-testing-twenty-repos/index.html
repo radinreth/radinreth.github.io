@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>ESB-MOT: Testing a Platform Spread Across Twenty Repos | Radin Reth</title>
+<meta name="keywords" content="esb, mot, tsc, testing, kafka, nuxt">
+<meta name="description" content="MOT had no tests running in CI, and the defects that reached dev clustered at the boundaries between services. Notes on re-verifying a stale bug ledger, a stale department header, and a testing strategy built around where defects actually land.">
+<meta name="author" content="">
+<link rel="canonical" href="http://radinreth.me/posts/esb-mot-testing-twenty-repos/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.f49d66caae9ea0fd43f21f29e71a8d3e284517ed770f2aa86fa012953ad3c9ef.css" integrity="sha256-9J1myq6eoP1D8h8p5xqNPihFF&#43;13Dyqob6ASlTrTye8=" rel="preload stylesheet" as="style">
+<link rel="icon" href="http://radinreth.me/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://radinreth.me/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://radinreth.me/favicon-32x32.png">
+<link rel="apple-touch-icon" href="http://radinreth.me/apple-touch-icon.png">
+<link rel="mask-icon" href="http://radinreth.me/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="http://radinreth.me/posts/esb-mot-testing-twenty-repos/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript>
+<meta property="og:url" content="http://radinreth.me/posts/esb-mot-testing-twenty-repos/">
+  <meta property="og:site_name" content="Radin Reth">
+  <meta property="og:title" content="ESB-MOT: Testing a Platform Spread Across Twenty Repos">
+  <meta property="og:description" content="MOT had no tests running in CI, and the defects that reached dev clustered at the boundaries between services. Notes on re-verifying a stale bug ledger, a stale department header, and a testing strategy built around where defects actually land.">
+  <meta property="og:locale" content="en-us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-10-20T00:00:00+00:00">
+    <meta property="article:modified_time" content="2026-10-20T00:00:00+00:00">
+    <meta property="article:tag" content="Esb">
+    <meta property="article:tag" content="Mot">
+    <meta property="article:tag" content="Tsc">
+    <meta property="article:tag" content="Testing">
+    <meta property="article:tag" content="Kafka">
+    <meta property="article:tag" content="Nuxt">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ESB-MOT: Testing a Platform Spread Across Twenty Repos">
+<meta name="twitter:description" content="MOT had no tests running in CI, and the defects that reached dev clustered at the boundaries between services. Notes on re-verifying a stale bug ledger, a stale department header, and a testing strategy built around where defects actually land.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "http://radinreth.me/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "ESB-MOT: Testing a Platform Spread Across Twenty Repos",
+      "item": "http://radinreth.me/posts/esb-mot-testing-twenty-repos/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "ESB-MOT: Testing a Platform Spread Across Twenty Repos",
+  "name": "ESB-MOT: Testing a Platform Spread Across Twenty Repos",
+  "description": "MOT had no tests running in CI, and the defects that reached dev clustered at the boundaries between services. Notes on re-verifying a stale bug ledger, a stale department header, and a testing strategy built around where defects actually land.",
+  "keywords": [
+    "esb", "mot", "tsc", "testing", "kafka", "nuxt"
+  ],
+  "articleBody": "Where we started The MOT platform ships through about twenty independent repos that talk to each other over two gateways and Avro messages on Kafka. In October 2026, no test ran in CI, and the Jenkins builds skipped tests. Many test files existed on developers’ machines but had never been committed, because a local exclude kept src/test out of git.\nOn 2026-10-19 I brought the existing tests under version control. The baseline that day was red in 15 of 16 Maven repos and in both portals, and 23 test classes didn’t compile at all against the current code.\nThat number sounds bad, but it was useful. It told us the tests had drifted from the code for months without anyone noticing, which is exactly what happens when nothing runs them.\nDefects live at the boundaries Before writing a strategy, I looked at what actually broke on our dev environment. The defects clustered in four places, and per-class unit tests catch none of them.\nUnrouted gateway paths. A portal calls an endpoint the gateway has no route for, and the request 404s before it reaches the service. Schema mismatches. A producer and consumer disagree about an Avro field or a union default. Department-scope 403s. A guarded endpoint rejects a user who should have access, or accepts one who shouldn’t. Seed-data drift. A seeder inserts duplicate keys, or a fee row is missing a revenue code that the ministry’s workbook says should exist. The developers maintaining MOT, including me, were finding these by hand during smoke passes, one at a time.\nRe-verifying the bug ledger We keep a ledger of deferred defects. Someone writes an entry when they find a problem, and nobody revisits it afterwards. By September there were 26 open entries marked high severity. I checked every one against the current code and the live local databases instead of trusting the entry text.\nOutcome Count Stale, already fixed by later work 4 Fixed and shipped the same day 2 Confirmed real and reachable 11 Real, fix written but parked 1 Real but not reachable today 3 Real but deliberate design 1 Not verified 3 External, not an engineering task 1 Four entries described problems that no longer existed. Several of the confirmed ones had a different cause from the one recorded. One “small data task” turned out to need an ownership ruling from the ministry and a code change, because the penalty revenue code was derived as serviceCode + \"-PENALTY\". That formula can’t tell two seating-capacity bands apart, and the ministry bills them under different treasury codes.\nMy conclusion is that a defect ledger rots like any other documentation. An entry records what someone believed on the day they wrote it. It needs re-verification before anyone plans work from it.\nThe stale department header One bug shows the boundary problem clearly. Backoffice staff would occasionally open the applications list and get a 403 with the message key unable.to.view.applications.from.other.departments, even though they belonged to the department they were viewing.\nThe cause was in the portal, not the backend. A user’s permissions are scoped to a department, and the portal sends an X-Department-ID header on every request. The selected department lived in a module-scope ref, which is a singleton for the whole app rather than per login. It was also persisted under one fixed localStorage key that wasn’t tied to any user.\nA watcher auto-selected the first department for a newly loaded user, but only when nothing was selected yet. If the previous user’s department was still in localStorage, the watcher never fired. The new user’s departments loaded correctly but were never applied, and every request went out with someone else’s department ID.\nThe stored value was only cleared on the explicit Logout menu action. A failed token refresh, a redirect from the auth middleware, or a closed browser all skipped it.\nThe backend did its job by refusing a department the user didn’t belong to. The bug was a correct server-side check receiving a stale client-side header. Reproducing it was harder than explaining it. The obvious reproduction is two real CamDigiKey logins in one browser, but we had no local CamDigiKey mock and only one working identity. The auth cookies are httpOnly and secure, so no tool could inject a second user’s session without adding a bypass route to the portal, and we ruled that out. The reproduction became a test against the composable itself. It puts a stale department in localStorage, gives the composable a different user’s department list, and asserts that the header value changes. It needs no login, cookie or browser, and the same test serves as the regression check for the fix.\nThe strategy The testing strategy assigns each recurring defect class to the cheapest test layer that catches it.\nOffline fast tests per service. Unit and slice tests run with Schema Registry and Docker stopped. Anything that needs a database or Kafka is tagged and runs in a separate tier. Message-contract checks. The schema publisher refuses an incompatible change to a field or union default. A producer whose serialized message no longer matches its registered subject fails a round-trip test, with or without the tenant prefix. Gateway route coverage. Removing a path from a route class, or adding a portal call with no matching route, fails a check. Real-database persistence tests. Repository, Specification and native SQL queries run against real Postgres through Testcontainers. A mocked repository would pass a broken column name. A real database won’t. Authorization and department-scope tests. Guarded endpoints are verified for each relevant role and department. The order matters. The first layer has to exist before anything goes into CI, because a suite that needs a running registry to compile can’t run on a Jenkins agent that has none. One service, nrmis-service, couldn’t even build in CI. Its pom.xml pulled Avro schemas from a sibling checkout that existed only on one developer’s laptop, so it had no Jenkins job and ArgoCD deployed nothing for it.\nWhat I took from it Unit test coverage was never the main gap. Most of the classes we tested were simple and correct. The defects that hurt us came from two correct pieces that disagreed, such as a portal and a gateway, a producer and a consumer, or a seeder and a ministry spreadsheet. A strategy for a platform like this has to start from where the defects actually landed, and on MOT that was the joints between repos.\n",
+  "wordCount" : "1072",
+  "inLanguage": "en",
+  "datePublished": "2026-10-20T00:00:00Z",
+  "dateModified": "2026-10-20T00:00:00Z",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "http://radinreth.me/posts/esb-mot-testing-twenty-repos/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Radin Reth",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "http://radinreth.me/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="http://radinreth.me/" accesskey="h" title="Radin Reth (Alt + H)">Radin Reth</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="http://radinreth.me/posts/" title="Posts">
+                    <span>Posts</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://radinreth.me/archives/" title="Archive">
+                    <span>Archive</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://radinreth.me/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://radinreth.me/tags/" title="Tags">
+                    <span>Tags</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="http://radinreth.me/">Home</a>&nbsp;»&nbsp;<a href="http://radinreth.me/posts/">Posts</a></div>
+    <h1 class="post-title entry-hint-parent">
+      ESB-MOT: Testing a Platform Spread Across Twenty Repos
+    </h1>
+    <div class="post-meta"><span title='2026-10-20 00:00:00 +0000 UTC'>October 20, 2026</span>&nbsp;·&nbsp;6 min
+
+</div>
+  </header> <div class="toc">
+    <details >
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#where-we-started" aria-label="Where we started">Where we started</a></li>
+                <li>
+                    <a href="#defects-live-at-the-boundaries" aria-label="Defects live at the boundaries">Defects live at the boundaries</a></li>
+                <li>
+                    <a href="#re-verifying-the-bug-ledger" aria-label="Re-verifying the bug ledger">Re-verifying the bug ledger</a></li>
+                <li>
+                    <a href="#the-stale-department-header" aria-label="The stale department header">The stale department header</a></li>
+                <li>
+                    <a href="#the-strategy" aria-label="The strategy">The strategy</a></li>
+                <li>
+                    <a href="#what-i-took-from-it" aria-label="What I took from it">What I took from it</a>
+                </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><h2 id="where-we-started">Where we started<a hidden class="anchor" aria-hidden="true" href="#where-we-started">#</a></h2>
+<p>The MOT platform ships through about twenty independent repos that talk to each other over two gateways and Avro messages on Kafka. In October 2026, no test ran in CI, and the Jenkins builds skipped tests. Many test files existed on developers&rsquo; machines but had never been committed, because a local exclude kept <code>src/test</code> out of git.</p>
+<p>On 2026-10-19 I brought the existing tests under version control. The baseline that day was red in 15 of 16 Maven repos and in both portals, and 23 test classes didn&rsquo;t compile at all against the current code.</p>
+<p>That number sounds bad, but it was useful. It told us the tests had drifted from the code for months without anyone noticing, which is exactly what happens when nothing runs them.</p>
+<h2 id="defects-live-at-the-boundaries">Defects live at the boundaries<a hidden class="anchor" aria-hidden="true" href="#defects-live-at-the-boundaries">#</a></h2>
+<p>Before writing a strategy, I looked at what actually broke on our dev environment. The defects clustered in four places, and per-class unit tests catch none of them.</p>
+<ul>
+<li><strong>Unrouted gateway paths.</strong> A portal calls an endpoint the gateway has no route for, and the request 404s before it reaches the service.</li>
+<li><strong>Schema mismatches.</strong> A producer and consumer disagree about an Avro field or a union default.</li>
+<li><strong>Department-scope 403s.</strong> A guarded endpoint rejects a user who should have access, or accepts one who shouldn&rsquo;t.</li>
+<li><strong>Seed-data drift.</strong> A seeder inserts duplicate keys, or a fee row is missing a revenue code that the ministry&rsquo;s workbook says should exist.</li>
+</ul>
+<p>The developers maintaining MOT, including me, were finding these by hand during smoke passes, one at a time.</p>
+<h2 id="re-verifying-the-bug-ledger">Re-verifying the bug ledger<a hidden class="anchor" aria-hidden="true" href="#re-verifying-the-bug-ledger">#</a></h2>
+<p>We keep a ledger of deferred defects. Someone writes an entry when they find a problem, and nobody revisits it afterwards. By September there were 26 open entries marked high severity. I checked every one against the current code and the live local databases instead of trusting the entry text.</p>
+<table>
+  <thead>
+      <tr>
+          <th>Outcome</th>
+          <th>Count</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Stale, already fixed by later work</td>
+          <td>4</td>
+      </tr>
+      <tr>
+          <td>Fixed and shipped the same day</td>
+          <td>2</td>
+      </tr>
+      <tr>
+          <td>Confirmed real and reachable</td>
+          <td>11</td>
+      </tr>
+      <tr>
+          <td>Real, fix written but parked</td>
+          <td>1</td>
+      </tr>
+      <tr>
+          <td>Real but not reachable today</td>
+          <td>3</td>
+      </tr>
+      <tr>
+          <td>Real but deliberate design</td>
+          <td>1</td>
+      </tr>
+      <tr>
+          <td>Not verified</td>
+          <td>3</td>
+      </tr>
+      <tr>
+          <td>External, not an engineering task</td>
+          <td>1</td>
+      </tr>
+  </tbody>
+</table>
+<p>Four entries described problems that no longer existed. Several of the confirmed ones had a different cause from the one recorded. One &ldquo;small data task&rdquo; turned out to need an ownership ruling from the ministry and a code change, because the penalty revenue code was derived as <code>serviceCode + &quot;-PENALTY&quot;</code>. That formula can&rsquo;t tell two seating-capacity bands apart, and the ministry bills them under different treasury codes.</p>
+<p>My conclusion is that a defect ledger rots like any other documentation. An entry records what someone believed on the day they wrote it. It needs re-verification before anyone plans work from it.</p>
+<h2 id="the-stale-department-header">The stale department header<a hidden class="anchor" aria-hidden="true" href="#the-stale-department-header">#</a></h2>
+<p>One bug shows the boundary problem clearly. Backoffice staff would occasionally open the applications list and get a 403 with the message key <code>unable.to.view.applications.from.other.departments</code>, even though they belonged to the department they were viewing.</p>
+<p>The cause was in the portal, not the backend. A user&rsquo;s permissions are scoped to a department, and the portal sends an <code>X-Department-ID</code> header on every request. The selected department lived in a module-scope <code>ref</code>, which is a singleton for the whole app rather than per login. It was also persisted under one fixed localStorage key that wasn&rsquo;t tied to any user.</p>
+<p>A watcher auto-selected the first department for a newly loaded user, but only when nothing was selected yet. If the previous user&rsquo;s department was still in localStorage, the watcher never fired. The new user&rsquo;s departments loaded correctly but were never applied, and every request went out with someone else&rsquo;s department ID.</p>
+<p>The stored value was only cleared on the explicit Logout menu action. A failed token refresh, a redirect from the auth middleware, or a closed browser all skipped it.</p>
+<p>The backend did its job by refusing a department the user didn&rsquo;t belong to. The bug was a correct server-side check receiving a stale client-side header. Reproducing it was harder than explaining it. The obvious reproduction is two real CamDigiKey logins in one browser, but we had no local CamDigiKey mock and only one working identity. The auth cookies are httpOnly and secure, so no tool could inject a second user&rsquo;s session without adding a bypass route to the portal, and we ruled that out. The reproduction became a test against the composable itself. It puts a stale department in localStorage, gives the composable a different user&rsquo;s department list, and asserts that the header value changes. It needs no login, cookie or browser, and the same test serves as the regression check for the fix.</p>
+<h2 id="the-strategy">The strategy<a hidden class="anchor" aria-hidden="true" href="#the-strategy">#</a></h2>
+<p>The testing strategy assigns each recurring defect class to the cheapest test layer that catches it.</p>
+<ol>
+<li><strong>Offline fast tests per service.</strong> Unit and slice tests run with Schema Registry and Docker stopped. Anything that needs a database or Kafka is tagged and runs in a separate tier.</li>
+<li><strong>Message-contract checks.</strong> The schema publisher refuses an incompatible change to a field or union default. A producer whose serialized message no longer matches its registered subject fails a round-trip test, with or without the tenant prefix.</li>
+<li><strong>Gateway route coverage.</strong> Removing a path from a route class, or adding a portal call with no matching route, fails a check.</li>
+<li><strong>Real-database persistence tests.</strong> Repository, Specification and native SQL queries run against real Postgres through Testcontainers. A mocked repository would pass a broken column name. A real database won&rsquo;t.</li>
+<li><strong>Authorization and department-scope tests.</strong> Guarded endpoints are verified for each relevant role and department.</li>
+</ol>
+<p>The order matters. The first layer has to exist before anything goes into CI, because a suite that needs a running registry to compile can&rsquo;t run on a Jenkins agent that has none. One service, nrmis-service, couldn&rsquo;t even build in CI. Its <code>pom.xml</code> pulled Avro schemas from a sibling checkout that existed only on one developer&rsquo;s laptop, so it had no Jenkins job and ArgoCD deployed nothing for it.</p>
+<h2 id="what-i-took-from-it">What I took from it<a hidden class="anchor" aria-hidden="true" href="#what-i-took-from-it">#</a></h2>
+<p>Unit test coverage was never the main gap. Most of the classes we tested were simple and correct. The defects that hurt us came from two correct pieces that disagreed, such as a portal and a gateway, a producer and a consumer, or a seeder and a ministry spreadsheet. A strategy for a platform like this has to start from where the defects actually landed, and on MOT that was the joints between repos.</p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="http://radinreth.me/tags/esb/">Esb</a></li>
+      <li><a href="http://radinreth.me/tags/mot/">Mot</a></li>
+      <li><a href="http://radinreth.me/tags/tsc/">Tsc</a></li>
+      <li><a href="http://radinreth.me/tags/testing/">Testing</a></li>
+      <li><a href="http://radinreth.me/tags/kafka/">Kafka</a></li>
+      <li><a href="http://radinreth.me/tags/nuxt/">Nuxt</a></li>
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="http://radinreth.me/">Radin Reth</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

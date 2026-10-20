@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>CamWallet v2: A Closed Ledger With No Bank in the Path | Radin Reth</title>
+<meta name="keywords" content="camwallet, tsc, ledger, payments, spring-boot, postgres">
+<meta name="description" content="How CamWallet&rsquo;s second version changed two assumptions, who decides eligibility and where payment happens, and why everything else in the design follows from those two changes.">
+<meta name="author" content="">
+<link rel="canonical" href="http://radinreth.me/posts/camwallet-v2-closed-ledger/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.f49d66caae9ea0fd43f21f29e71a8d3e284517ed770f2aa86fa012953ad3c9ef.css" integrity="sha256-9J1myq6eoP1D8h8p5xqNPihFF&#43;13Dyqob6ASlTrTye8=" rel="preload stylesheet" as="style">
+<link rel="icon" href="http://radinreth.me/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://radinreth.me/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://radinreth.me/favicon-32x32.png">
+<link rel="apple-touch-icon" href="http://radinreth.me/apple-touch-icon.png">
+<link rel="mask-icon" href="http://radinreth.me/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="http://radinreth.me/posts/camwallet-v2-closed-ledger/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript>
+<meta property="og:url" content="http://radinreth.me/posts/camwallet-v2-closed-ledger/">
+  <meta property="og:site_name" content="Radin Reth">
+  <meta property="og:title" content="CamWallet v2: A Closed Ledger With No Bank in the Path">
+  <meta property="og:description" content="How CamWallet’s second version changed two assumptions, who decides eligibility and where payment happens, and why everything else in the design follows from those two changes.">
+  <meta property="og:locale" content="en-us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-10-20T00:00:00+00:00">
+    <meta property="article:modified_time" content="2026-10-20T00:00:00+00:00">
+    <meta property="article:tag" content="Camwallet">
+    <meta property="article:tag" content="Tsc">
+    <meta property="article:tag" content="Ledger">
+    <meta property="article:tag" content="Payments">
+    <meta property="article:tag" content="Spring-Boot">
+    <meta property="article:tag" content="Postgres">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="CamWallet v2: A Closed Ledger With No Bank in the Path">
+<meta name="twitter:description" content="How CamWallet&rsquo;s second version changed two assumptions, who decides eligibility and where payment happens, and why everything else in the design follows from those two changes.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "http://radinreth.me/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "CamWallet v2: A Closed Ledger With No Bank in the Path",
+      "item": "http://radinreth.me/posts/camwallet-v2-closed-ledger/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "CamWallet v2: A Closed Ledger With No Bank in the Path",
+  "name": "CamWallet v2: A Closed Ledger With No Bank in the Path",
+  "description": "How CamWallet\u0026rsquo;s second version changed two assumptions, who decides eligibility and where payment happens, and why everything else in the design follows from those two changes.",
+  "keywords": [
+    "camwallet", "tsc", "ledger", "payments", "spring-boot", "postgres"
+  ],
+  "articleBody": "What CamWallet is CamWallet is a platform at TSC for government benefit schemes. A scheme owner, usually a ministry or agency, funds a programme and decides who receives value. Beneficiaries spend that value with approved merchants. CamWallet holds the value, checks each payment when it happens, and keeps a record good enough to reconcile and audit.\nThere are three surfaces. Scheme owners and merchants use a Back Office portal built with Nuxt 4. Beneficiaries pay through the CamDigiKey app, which is Cambodia’s digital identity app. Merchants accept payments in a native Flutter Merchant App. The backend is Java 25 on Spring Boot 4.1 with Spring Modulith, Spring Data JDBC and Postgres.\nv2 is two changes, not a rewrite Version 1 worked like this.\nA scheme defined eligibility rules, and CamWallet decided who qualified. People who qualified received value in a wallet. They paid merchants through a bank, using Bakong, ABA or ACLEDA. The bank confirmed the payment, and CamWallet recorded the outcome. Version 2 changes the first and third steps. The scheme owner now decides who qualifies in their own system, and CamWallet records that decision without re-checking it. Payment now happens inside CamWallet, between a beneficiary’s value and a merchant’s balance, with no bank in the path.\nEverything else carries over, including the double-entry ledger, CamDigiKey login, disbursement scheduling, idempotency and the audit trail. That is why we treated v2 as a milestone on the existing codebase rather than a new system. When we wrote down the full v1-to-v2 delta, it came to ten rows: four additions, three deletions, two renames and one re-point.\nWhy the two changes cascade Each change removes a lot of machinery.\nOnce the scheme owner decides eligibility, CamWallet doesn’t need eligibility attributes, a registry lookup or an approval workflow. The schemes/eligibility/ module goes away. Eligibility evaluation, merchant vetting and base-registry integration are now permanently out of scope.\nOnce payment is internal, merchants need a balance, so each merchant gets a ledger account. The money is owed to the merchant until the scheme owner pays them outside the system, so settlement has to debit that balance. The payment-gateway clients for the banks have nothing left to do and are deleted.\nThe design rests on one sentence. A scheme owner funds a programme and decides who qualifies, and CamWallet makes sure the money is only spent with approved merchants and then tells the owner exactly what to pay each merchant.\nThe ledger Everything is a transfer between two accounts. Entries are appended and never changed, and every balance can be explained by replaying its entries. Reconciliation becomes arithmetic instead of investigation.\nAccount What it holds scheme:{id}:expenditure Total ever granted in the scheme grant:{id} One grant’s unspent value payable:{scheme}:{merchant} What the scheme owes one merchant scheme:{id}:paid_out Total recorded as paid to merchants scheme:{id}:returned Unspent value from expired grants Each enrolment is a grant with its own amount and validity dates, and a beneficiary can hold several. A wallet is not an account. It is the set of a beneficiary’s grant accounts in one scheme, and its spendable balance only counts grants that are valid today.\nPayables are per scheme. A merchant serving two schemes has two payables, because each scheme settles separately and the obligations must not pool.\nOperation From → To Disburse scheme expenditure → grant Pay grant (soonest end date first) → payable Record payout payable → scheme paid_out Return expired value grant → scheme returned A payment that draws on two grants writes two debits and one credit in one transaction. Because expenditure moves only on disbursement, reconciliation is a single identity per scheme that we can check in one query and assert in a test.\ngranted = Σ grant balances + Σ payables + paid_out + returned Making it safe in Postgres Removing the bank removed the distributed transaction. A payment debits grant accounts and credits a payable in one ACID transaction inside one database. There is no two-phase commit and no compensating action. That single fact made the rest of the design much simpler.\nA few rules keep the ledger honest.\nEntries are immutable. A database trigger rejects UPDATE and DELETE on ledger_entries. A correction is a new reversing entry. Cached balances change atomically. Grant and payable accounts cache their balance, because payment checks read those two numbers. The cache only changes inside one posting method, as SET balance = balance + :delta. A read-modify-write in Java isn’t allowed, because many wallets credit the same payable at once. A test asserts that each cached balance equals the sum of its entries. Every transfer balances. The posting code rejects an unbalanced set of entries before it writes anything. Locks guard the checks, not the arithmetic. A payment locks the beneficiary’s wallet row before it reads any grant. A payment from a dynamic QR locks the QR first, so one QR can’t be paid twice. Credits need no lock, because the atomic delta already makes them safe. Money is exact decimal. Amounts are numeric(19,4) and always travel with their currency. A posting across two currencies is rejected. Declines have a closed vocabulary Every declined payment carries exactly one reason code from a fixed list, evaluated in a fixed order. The list includes QR_REVOKED, QR_ALREADY_PAID, QR_EXPIRED, MERCHANT_INACTIVE, NO_SCHEME_AT_MERCHANT, MERCHANT_NOT_PARTICIPATING, CREDIT_NOT_YET_VALID, CREDIT_EXPIRED and INSUFFICIENT_BALANCE.\nAdding a code later is cheap. Rewriting months of free-text rejection messages into something a report can group is not.\nWhat it removed from the build The original 2026 proposal named Postgres, MinIO and Kafka. For a four-week build at pilot volume, Postgres covers most of that list. It holds the ledger, configuration, audit trail and Spring Modulith’s event publication registry. Each piece of infrastructure we didn’t add is one fewer thing to deploy, monitor and explain to the next developer.\nMerchant QRs A recent piece of work let merchants manage their own static QRs. A merchant often takes payments at more than one counter, and each counter needs its own printed QR with a label so staff and payers know where it belongs. A QR names the merchant, currency and label but no scheme, and the beneficiary picks the scheme when they pay.\nThe EMV QR format limits the merchant name in tag 59 to 25 characters. We had been filling it from the merchant’s English name, which had no length limit. Merchants now get a separate display name capped at 25 printable ASCII characters, and that name is what appears on the QR.\nLooking back The most useful document in the project is one page called “What v2 actually is.” It lists the four steps, marks the two that changed, and traces every other decision back to them. New readers start there. When a design discussion drifted, we went back to that page and asked which of the two changes the proposal followed from. If it followed from neither, it usually belonged in a later phase.\n",
+  "wordCount" : "1146",
+  "inLanguage": "en",
+  "datePublished": "2026-10-20T00:00:00Z",
+  "dateModified": "2026-10-20T00:00:00Z",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "http://radinreth.me/posts/camwallet-v2-closed-ledger/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Radin Reth",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "http://radinreth.me/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="http://radinreth.me/" accesskey="h" title="Radin Reth (Alt + H)">Radin Reth</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="http://radinreth.me/posts/" title="Posts">
+                    <span>Posts</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://radinreth.me/archives/" title="Archive">
+                    <span>Archive</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://radinreth.me/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://radinreth.me/tags/" title="Tags">
+                    <span>Tags</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="http://radinreth.me/">Home</a>&nbsp;»&nbsp;<a href="http://radinreth.me/posts/">Posts</a></div>
+    <h1 class="post-title entry-hint-parent">
+      CamWallet v2: A Closed Ledger With No Bank in the Path
+    </h1>
+    <div class="post-meta"><span title='2026-10-20 00:00:00 +0000 UTC'>October 20, 2026</span>&nbsp;·&nbsp;6 min
+
+</div>
+  </header> <div class="toc">
+    <details >
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#what-camwallet-is" aria-label="What CamWallet is">What CamWallet is</a></li>
+                <li>
+                    <a href="#v2-is-two-changes-not-a-rewrite" aria-label="v2 is two changes, not a rewrite">v2 is two changes, not a rewrite</a></li>
+                <li>
+                    <a href="#why-the-two-changes-cascade" aria-label="Why the two changes cascade">Why the two changes cascade</a></li>
+                <li>
+                    <a href="#the-ledger" aria-label="The ledger">The ledger</a></li>
+                <li>
+                    <a href="#making-it-safe-in-postgres" aria-label="Making it safe in Postgres">Making it safe in Postgres</a></li>
+                <li>
+                    <a href="#declines-have-a-closed-vocabulary" aria-label="Declines have a closed vocabulary">Declines have a closed vocabulary</a></li>
+                <li>
+                    <a href="#what-it-removed-from-the-build" aria-label="What it removed from the build">What it removed from the build</a></li>
+                <li>
+                    <a href="#merchant-qrs" aria-label="Merchant QRs">Merchant QRs</a></li>
+                <li>
+                    <a href="#looking-back" aria-label="Looking back">Looking back</a>
+                </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><h2 id="what-camwallet-is">What CamWallet is<a hidden class="anchor" aria-hidden="true" href="#what-camwallet-is">#</a></h2>
+<p>CamWallet is a platform at TSC for government benefit schemes. A scheme owner, usually a ministry or agency, funds a programme and decides who receives value. Beneficiaries spend that value with approved merchants. CamWallet holds the value, checks each payment when it happens, and keeps a record good enough to reconcile and audit.</p>
+<p>There are three surfaces. Scheme owners and merchants use a Back Office portal built with Nuxt 4. Beneficiaries pay through the CamDigiKey app, which is Cambodia&rsquo;s digital identity app. Merchants accept payments in a native Flutter Merchant App. The backend is Java 25 on Spring Boot 4.1 with Spring Modulith, Spring Data JDBC and Postgres.</p>
+<h2 id="v2-is-two-changes-not-a-rewrite">v2 is two changes, not a rewrite<a hidden class="anchor" aria-hidden="true" href="#v2-is-two-changes-not-a-rewrite">#</a></h2>
+<p>Version 1 worked like this.</p>
+<ol>
+<li>A scheme defined eligibility rules, and CamWallet decided who qualified.</li>
+<li>People who qualified received value in a wallet.</li>
+<li>They paid merchants through a bank, using Bakong, ABA or ACLEDA.</li>
+<li>The bank confirmed the payment, and CamWallet recorded the outcome.</li>
+</ol>
+<p>Version 2 changes the first and third steps. The scheme owner now decides who qualifies in their own system, and CamWallet records that decision without re-checking it. Payment now happens inside CamWallet, between a beneficiary&rsquo;s value and a merchant&rsquo;s balance, with no bank in the path.</p>
+<p>Everything else carries over, including the double-entry ledger, CamDigiKey login, disbursement scheduling, idempotency and the audit trail. That is why we treated v2 as a milestone on the existing codebase rather than a new system. When we wrote down the full v1-to-v2 delta, it came to ten rows: four additions, three deletions, two renames and one re-point.</p>
+<h2 id="why-the-two-changes-cascade">Why the two changes cascade<a hidden class="anchor" aria-hidden="true" href="#why-the-two-changes-cascade">#</a></h2>
+<p>Each change removes a lot of machinery.</p>
+<p>Once the scheme owner decides eligibility, CamWallet doesn&rsquo;t need eligibility attributes, a registry lookup or an approval workflow. The <code>schemes/eligibility/</code> module goes away. Eligibility evaluation, merchant vetting and base-registry integration are now permanently out of scope.</p>
+<p>Once payment is internal, merchants need a balance, so each merchant gets a ledger account. The money is owed to the merchant until the scheme owner pays them outside the system, so settlement has to debit that balance. The payment-gateway clients for the banks have nothing left to do and are deleted.</p>
+<p>The design rests on one sentence. A scheme owner funds a programme and decides who qualifies, and CamWallet makes sure the money is only spent with approved merchants and then tells the owner exactly what to pay each merchant.</p>
+<h2 id="the-ledger">The ledger<a hidden class="anchor" aria-hidden="true" href="#the-ledger">#</a></h2>
+<p>Everything is a transfer between two accounts. Entries are appended and never changed, and every balance can be explained by replaying its entries. Reconciliation becomes arithmetic instead of investigation.</p>
+<table>
+  <thead>
+      <tr>
+          <th>Account</th>
+          <th>What it holds</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><code>scheme:{id}:expenditure</code></td>
+          <td>Total ever granted in the scheme</td>
+      </tr>
+      <tr>
+          <td><code>grant:{id}</code></td>
+          <td>One grant&rsquo;s unspent value</td>
+      </tr>
+      <tr>
+          <td><code>payable:{scheme}:{merchant}</code></td>
+          <td>What the scheme owes one merchant</td>
+      </tr>
+      <tr>
+          <td><code>scheme:{id}:paid_out</code></td>
+          <td>Total recorded as paid to merchants</td>
+      </tr>
+      <tr>
+          <td><code>scheme:{id}:returned</code></td>
+          <td>Unspent value from expired grants</td>
+      </tr>
+  </tbody>
+</table>
+<p>Each enrolment is a <strong>grant</strong> with its own amount and validity dates, and a beneficiary can hold several. A wallet is not an account. It is the set of a beneficiary&rsquo;s grant accounts in one scheme, and its spendable balance only counts grants that are valid today.</p>
+<p>Payables are per scheme. A merchant serving two schemes has two payables, because each scheme settles separately and the obligations must not pool.</p>
+<table>
+  <thead>
+      <tr>
+          <th>Operation</th>
+          <th>From → To</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Disburse</td>
+          <td>scheme expenditure → grant</td>
+      </tr>
+      <tr>
+          <td>Pay</td>
+          <td>grant (soonest end date first) → payable</td>
+      </tr>
+      <tr>
+          <td>Record payout</td>
+          <td>payable → scheme paid_out</td>
+      </tr>
+      <tr>
+          <td>Return expired value</td>
+          <td>grant → scheme returned</td>
+      </tr>
+  </tbody>
+</table>
+<p>A payment that draws on two grants writes two debits and one credit in one transaction. Because expenditure moves only on disbursement, reconciliation is a single identity per scheme that we can check in one query and assert in a test.</p>
+<pre tabindex="0"><code>granted = Σ grant balances + Σ payables + paid_out + returned
+</code></pre><h2 id="making-it-safe-in-postgres">Making it safe in Postgres<a hidden class="anchor" aria-hidden="true" href="#making-it-safe-in-postgres">#</a></h2>
+<p>Removing the bank removed the distributed transaction. A payment debits grant accounts and credits a payable in one ACID transaction inside one database. There is no two-phase commit and no compensating action. That single fact made the rest of the design much simpler.</p>
+<p>A few rules keep the ledger honest.</p>
+<ul>
+<li><strong>Entries are immutable.</strong> A database trigger rejects <code>UPDATE</code> and <code>DELETE</code> on <code>ledger_entries</code>. A correction is a new reversing entry.</li>
+<li><strong>Cached balances change atomically.</strong> Grant and payable accounts cache their balance, because payment checks read those two numbers. The cache only changes inside one posting method, as <code>SET balance = balance + :delta</code>. A read-modify-write in Java isn&rsquo;t allowed, because many wallets credit the same payable at once. A test asserts that each cached balance equals the sum of its entries.</li>
+<li><strong>Every transfer balances.</strong> The posting code rejects an unbalanced set of entries before it writes anything.</li>
+<li><strong>Locks guard the checks, not the arithmetic.</strong> A payment locks the beneficiary&rsquo;s wallet row before it reads any grant. A payment from a dynamic QR locks the QR first, so one QR can&rsquo;t be paid twice. Credits need no lock, because the atomic delta already makes them safe.</li>
+<li><strong>Money is exact decimal.</strong> Amounts are <code>numeric(19,4)</code> and always travel with their currency. A posting across two currencies is rejected.</li>
+</ul>
+<h2 id="declines-have-a-closed-vocabulary">Declines have a closed vocabulary<a hidden class="anchor" aria-hidden="true" href="#declines-have-a-closed-vocabulary">#</a></h2>
+<p>Every declined payment carries exactly one reason code from a fixed list, evaluated in a fixed order. The list includes <code>QR_REVOKED</code>, <code>QR_ALREADY_PAID</code>, <code>QR_EXPIRED</code>, <code>MERCHANT_INACTIVE</code>, <code>NO_SCHEME_AT_MERCHANT</code>, <code>MERCHANT_NOT_PARTICIPATING</code>, <code>CREDIT_NOT_YET_VALID</code>, <code>CREDIT_EXPIRED</code> and <code>INSUFFICIENT_BALANCE</code>.</p>
+<p>Adding a code later is cheap. Rewriting months of free-text rejection messages into something a report can group is not.</p>
+<h2 id="what-it-removed-from-the-build">What it removed from the build<a hidden class="anchor" aria-hidden="true" href="#what-it-removed-from-the-build">#</a></h2>
+<p>The original 2026 proposal named Postgres, MinIO and Kafka. For a four-week build at pilot volume, Postgres covers most of that list. It holds the ledger, configuration, audit trail and Spring Modulith&rsquo;s event publication registry. Each piece of infrastructure we didn&rsquo;t add is one fewer thing to deploy, monitor and explain to the next developer.</p>
+<h2 id="merchant-qrs">Merchant QRs<a hidden class="anchor" aria-hidden="true" href="#merchant-qrs">#</a></h2>
+<p>A recent piece of work let merchants manage their own static QRs. A merchant often takes payments at more than one counter, and each counter needs its own printed QR with a label so staff and payers know where it belongs. A QR names the merchant, currency and label but no scheme, and the beneficiary picks the scheme when they pay.</p>
+<p>The EMV QR format limits the merchant name in tag 59 to 25 characters. We had been filling it from the merchant&rsquo;s English name, which had no length limit. Merchants now get a separate display name capped at 25 printable ASCII characters, and that name is what appears on the QR.</p>
+<h2 id="looking-back">Looking back<a hidden class="anchor" aria-hidden="true" href="#looking-back">#</a></h2>
+<p>The most useful document in the project is one page called &ldquo;What v2 actually is.&rdquo; It lists the four steps, marks the two that changed, and traces every other decision back to them. New readers start there. When a design discussion drifted, we went back to that page and asked which of the two changes the proposal followed from. If it followed from neither, it usually belonged in a later phase.</p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="http://radinreth.me/tags/camwallet/">Camwallet</a></li>
+      <li><a href="http://radinreth.me/tags/tsc/">Tsc</a></li>
+      <li><a href="http://radinreth.me/tags/ledger/">Ledger</a></li>
+      <li><a href="http://radinreth.me/tags/payments/">Payments</a></li>
+      <li><a href="http://radinreth.me/tags/spring-boot/">Spring-Boot</a></li>
+      <li><a href="http://radinreth.me/tags/postgres/">Postgres</a></li>
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="http://radinreth.me/">Radin Reth</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

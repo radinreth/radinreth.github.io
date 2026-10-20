@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Retrospective on Radin Reth</title>
+    <link>http://radinreth.me/tags/retrospective/</link>
+    <description>Recent content in Retrospective on Radin Reth</description>
+    <generator>Hugo -- 0.147.3</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 20 Oct 2026 00:00:00 +0000</lastBuildDate>
+    <atom:link href="http://radinreth.me/tags/retrospective/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>CamWallet: What Two Retrospectives Taught Me About Building With an Agent Loop</title>
+      <link>http://radinreth.me/posts/camwallet-building-with-an-agent-loop/</link>
+      <pubDate>Tue, 20 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>http://radinreth.me/posts/camwallet-building-with-an-agent-loop/</guid>
+      <description>CamWallet&amp;rsquo;s v2 epics were built with an unattended AI agent loop. Two retrospectives showed the same pattern each time: the loop built too much, a human review cut it back, and the history recorded both.</description>
+    </item>
+  </channel>
+</rss>

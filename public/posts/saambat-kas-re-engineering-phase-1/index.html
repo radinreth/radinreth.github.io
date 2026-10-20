@@ -1,24 +1,24 @@
 <!DOCTYPE html>
 <html lang="en" dir="auto">
 
-<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
+<head><meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="robots" content="noindex, nofollow">
+<meta name="robots" content="index, follow">
 <title>Re-engineering the KAS Platform — Phase 1 | Radin Reth</title>
 <meta name="keywords" content="saambat, kas, tsc, re-architecture">
 <meta name="description" content="Notes from four months re-architecting SAAMBAT/KAS at TSC: replacing the gateway, dropping internal E2EE, consolidating IAM, standardizing observability, and putting Kafka in the middle.">
 <meta name="author" content="">
-<link rel="canonical" href="http://localhost:1313/posts/saambat-kas-re-engineering-phase-1/">
+<link rel="canonical" href="http://radinreth.me/posts/saambat-kas-re-engineering-phase-1/">
 <link crossorigin="anonymous" href="/assets/css/stylesheet.f49d66caae9ea0fd43f21f29e71a8d3e284517ed770f2aa86fa012953ad3c9ef.css" integrity="sha256-9J1myq6eoP1D8h8p5xqNPihFF&#43;13Dyqob6ASlTrTye8=" rel="preload stylesheet" as="style">
-<link rel="icon" href="http://localhost:1313/favicon.ico">
-<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/favicon-32x32.png">
-<link rel="apple-touch-icon" href="http://localhost:1313/apple-touch-icon.png">
-<link rel="mask-icon" href="http://localhost:1313/safari-pinned-tab.svg">
+<link rel="icon" href="http://radinreth.me/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://radinreth.me/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://radinreth.me/favicon-32x32.png">
+<link rel="apple-touch-icon" href="http://radinreth.me/apple-touch-icon.png">
+<link rel="mask-icon" href="http://radinreth.me/safari-pinned-tab.svg">
 <meta name="theme-color" content="#2e2e33">
 <meta name="msapplication-TileColor" content="#2e2e33">
-<link rel="alternate" hreflang="en" href="http://localhost:1313/posts/saambat-kas-re-engineering-phase-1/">
+<link rel="alternate" hreflang="en" href="http://radinreth.me/posts/saambat-kas-re-engineering-phase-1/">
 <noscript>
     <style>
         #theme-toggle,
@@ -56,7 +56,73 @@
 
     </style>
 </noscript>
+<meta property="og:url" content="http://radinreth.me/posts/saambat-kas-re-engineering-phase-1/">
+  <meta property="og:site_name" content="Radin Reth">
+  <meta property="og:title" content="Re-engineering the KAS Platform — Phase 1">
+  <meta property="og:description" content="Notes from four months re-architecting SAAMBAT/KAS at TSC: replacing the gateway, dropping internal E2EE, consolidating IAM, standardizing observability, and putting Kafka in the middle.">
+  <meta property="og:locale" content="en-us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-05-09T00:00:00+00:00">
+    <meta property="article:modified_time" content="2026-05-09T00:00:00+00:00">
+    <meta property="article:tag" content="Saambat">
+    <meta property="article:tag" content="Kas">
+    <meta property="article:tag" content="Tsc">
+    <meta property="article:tag" content="Re-Architecture">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Re-engineering the KAS Platform — Phase 1">
+<meta name="twitter:description" content="Notes from four months re-architecting SAAMBAT/KAS at TSC: replacing the gateway, dropping internal E2EE, consolidating IAM, standardizing observability, and putting Kafka in the middle.">
 
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "http://radinreth.me/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Re-engineering the KAS Platform — Phase 1",
+      "item": "http://radinreth.me/posts/saambat-kas-re-engineering-phase-1/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Re-engineering the KAS Platform — Phase 1",
+  "name": "Re-engineering the KAS Platform — Phase 1",
+  "description": "Notes from four months re-architecting SAAMBAT/KAS at TSC: replacing the gateway, dropping internal E2EE, consolidating IAM, standardizing observability, and putting Kafka in the middle.",
+  "keywords": [
+    "saambat", "kas", "tsc", "re-architecture"
+  ],
+  "articleBody": "Background SAAMBAT is a Cambodia-government program supporting agricultural value chains, and KAS is the digital platform behind it. I’ve been working on it at TSC (Techo Startup Center). The platform grew organically over a few years — the kind of growth that ships features but accumulates the usual debts: a Node.js gateway no one fully owned, encryption layered between services that never left the cluster, two separate role tables, and a logging story that depended on whichever engineer set up the service first.\nWe kicked off a re-engineering program on 2026-01-01 with a clear scope for Phase 1: stop bleeding before adding any new industries. This post is a personal write-up of what shipped between January and the end of April.\nThe five things that mattered 1. The gateway is now Spring Cloud Gateway The old kas-core was a Node.js proxy doing JWT validation, partner E2EE, and routing. We replaced it with Spring Cloud Gateway on port 3000, with JWT validation moved to the edge using HS256 with a secret shared with kas-iam. Downstream services now verify locally; the /authenticate-jwt round-trip is gone.\nPath rewriting is split cleanly: /api/* for internal traffic, /integrations/* for partners. CORS is centralized — localhost only allowed in non-prod profiles, and the Helm chart defaults to the prod Spring profile as a fail-safe.\nIt’s running in dev. Staging and production are waiting on DevOps to provision the new cluster.\n2. We removed internal end-to-end encryption This one took some convincing. The previous design had secp256k1 + AES-256-CBC between every internal service. For traffic that never leaves the cluster, the operational complexity was real and the threat model was thin.\nSo we ripped it out internally and kept partner-facing E2EE, which we moved out of kas-core and into kas-service-registry — that’s where partner key material already lives. The @kas/e2ee-utils package stays for partner integrations.\nNet effect: simpler internal topology, partner trust boundary unchanged.\n3. IAM and RBAC, finally consolidated The single biggest defect I personally worked on was a duplicate-roles bug. Migration 001 had created agriculture-scoped roles without removing pre-existing duplicates. The result: createUser validation broke in surprising ways. Migration 003 deduplicates the roles, and createUser now runs Set-based dedup as defense in depth.\nAuditing the permission model produced a useful surprise: per-service permission tables were dead data. The frontends drive authorization off roles, not individual permissions. Only USER.* permissions were actually enforced anywhere. So those tables go on the housekeeping pile.\nTwo smaller fixes in the same pass — the kas-iam Dockerfile now ships the public/ directory (email templates), and EmailController no longer crashes when a template file is missing.\n4. Observability — one pattern, every service We picked a single transformation pattern and applied it everywhere:\nWinston structured (JSON) logs Correlation IDs end-to-end (HTTP X-Correlation-ID, plus the Socket.io equivalent) Sentry for errors Slack alerting for 5xx with full context ELK for centralized log aggregation All eight backend services are on the pattern. Some are further along on OpenAPI documentation and Vitest coverage than others — kas-iam (43 endpoints), kas-service-registry (13), and kas-weather-api (107) are documented; others still need that pass.\n5. Kafka as the event backbone Kafka 3.6, three brokers, KRaft mode (no ZooKeeper). 26 topics across portal, chat, notification, weather, resource, IAM, registry, and DLQ categories. Naming standardized as kas.... A kafka-init service auto-creates topics on startup; validate-topics.sh for health checks. Schema Registry 7.5.0 deployed (though contracts are not yet enforced — a known gap). Four DLQ topics in place; replay tooling is still manual, which is on the Phase-2 list. Local development that doesn’t fight you A small thing that mattered a lot: the unified Docker Compose stack in kas-infrastructure/. One command brings up MongoDB replica set, Redis, Kafka cluster, Schema Registry, ELK, and all eight backend services on documented ports. start.sh has --build and --no-cache flags; reset.sh got a --deep.\nWe also renamed docker-compose.override.yml → docker-compose.staging.yml. The old name was an automatic include — local dev was occasionally pointing at the staging MongoDB by accident. Now staging is opt-in via --staging.\nNotable bugs along the way BUG-3 (form-data on kas-resource-api): farmer / family-member submissions were broken. Root cause was formidable 2.1.5 auto-parsing bracket notation while our manual reconstruction code did the same job — they fought. kas-weather-api: form handlers now have a fallback path, and error responses no longer leak internals. What’s left for Phase 1 These are operational, not architectural:\nDevOps to provision the new cluster so the gateway can promote dev → staging → production. Once production cuts over, the legacy /authenticate-jwt endpoint can be retired. Housekeeping: sunset kas-core images and CI jobs, drop dead per-service permission tables, remove unused backend routes catalogued in docs/re-architecture/unused-backend-routes.md, scrub kas-core references from service CLAUDE.md files. What we’d need for nation-wide scale Phase 1 got us internally consistent. Going from there to production-grade for a nation-wide rollout is a different list — it’s the one I think about most. The headline items:\nResilience: multi-AZ MongoDB and Kafka, circuit breakers (Resilience4j on the gateway), automated DLQ replay, DR runbooks with documented RTO/RPO. Security: Vault-backed secrets, mTLS between gateway and downstream, rate limiting per principal/route, WAF, PII masking extended beyond kas-iam, a real penetration test, and a Cambodia data-protection compliance review. Observability beyond logs: OpenTelemetry traces, Prometheus + Grafana golden signals, formal SLOs (we have SLA targets but not SLOs), synthetic monitoring from regional vantage points, and an actual on-call rotation rather than Slack-only alerting. Performance: load testing with k6 or Gatling, a capacity plan sized to provinces × users × forms/day, CDN, MongoDB read replicas, Redis cluster mode, a connection-pooling sweep. Data governance: enforce Schema Registry contracts on kas.* topics, adopt one migration tool with idempotency tests, define retention policies, and inventory PII. DX \u0026 CI/CD: split CI matrices, contract tests at the gateway boundary, ephemeral pre-merge environments, branch protection and conventional commits, an internal developer portal. Frontend \u0026 mobile: offline-first hardening with proven sync conflict handling, low-bandwidth optimizations, Khmer language QA, and WCAG AA for backoffice tools used by government staff. Operational readiness: a real tenant model (province → district → commune as first-class citizens), feature flags for staged regional rollout, bulk import/export tooling for legacy records, training materials, and helpdesk integration. Phase 2, if it happens There’s a proposal on the table to generalize KAS beyond agriculture into a multi-industry data-entry backbone. We’ve done the preparation work — catalogued every place the codebase assumes “agriculture,” drafted the generic submission envelope:\n{ \"tenantId\": \"...\", \"industry\": \"...\", \"formId\": \"...\", \"schemaVersion\": 1, \"payload\": { }, \"attachments\": [ ], \"geo\": { }, \"submittedBy\": \"...\" } …and confirmed Schema Registry can host industry-specific payload contracts. The architectural precondition is extracting the form engine out of kas-resource-api into a runtime form-definition service, with industry packs (form definitions + RBAC seed + reference data + optional industry service) as a first-class concept.\nBut that’s a leadership decision. Engineering’s recommendation is a small, scoped extraction of the form engine first — about a quarter, two or three engineers — before committing to a second industry.\nReflection The most useful thing I learned in Phase 1 isn’t on the report. It’s that picking one transformation pattern and applying it everywhere beats tailoring per-service. The observability rollout went fast precisely because we stopped re-litigating the design at each service. Same for the Docker Compose unification — once the canonical stack existed, every service became “fit into this” rather than “design your own.”\nThe risk for Phase 2, if leadership greenlights it, isn’t technical. It’s the temptation to keep adding capabilities in parallel with the multi-industry generalization. That’s the way I get a hybrid platform that does neither well. So Phase 2 should ship behind a feature flag, with one new industry as the proof, before anything else.\n",
+  "wordCount" : "1285",
+  "inLanguage": "en",
+  "datePublished": "2026-05-09T00:00:00Z",
+  "dateModified": "2026-05-09T00:00:00Z",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "http://radinreth.me/posts/saambat-kas-re-engineering-phase-1/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Radin Reth",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "http://radinreth.me/favicon.ico"
+    }
+  }
+}
+</script>
 </head>
 
 <body class="" id="top">
@@ -74,7 +140,7 @@
 <header class="header">
     <nav class="nav">
         <div class="logo">
-            <a href="http://localhost:1313/" accesskey="h" title="Radin Reth (Alt + H)">Radin Reth</a>
+            <a href="http://radinreth.me/" accesskey="h" title="Radin Reth (Alt + H)">Radin Reth</a>
             <div class="logo-switches">
                 <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
                     <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
@@ -100,22 +166,22 @@
         </div>
         <ul id="menu">
             <li>
-                <a href="http://localhost:1313/posts/" title="Posts">
+                <a href="http://radinreth.me/posts/" title="Posts">
                     <span>Posts</span>
                 </a>
             </li>
             <li>
-                <a href="http://localhost:1313/archives/" title="Archive">
+                <a href="http://radinreth.me/archives/" title="Archive">
                     <span>Archive</span>
                 </a>
             </li>
             <li>
-                <a href="http://localhost:1313/search/" title="Search (Alt &#43; /)" accesskey=/>
+                <a href="http://radinreth.me/search/" title="Search (Alt &#43; /)" accesskey=/>
                     <span>Search</span>
                 </a>
             </li>
             <li>
-                <a href="http://localhost:1313/tags/" title="Tags">
+                <a href="http://radinreth.me/tags/" title="Tags">
                     <span>Tags</span>
                 </a>
             </li>
@@ -126,15 +192,9 @@
 
 <article class="post-single">
   <header class="post-header">
-    <div class="breadcrumbs"><a href="http://localhost:1313/">Home</a>&nbsp;»&nbsp;<a href="http://localhost:1313/posts/">Posts</a></div>
+    <div class="breadcrumbs"><a href="http://radinreth.me/">Home</a>&nbsp;»&nbsp;<a href="http://radinreth.me/posts/">Posts</a></div>
     <h1 class="post-title entry-hint-parent">
       Re-engineering the KAS Platform — Phase 1
-      <span class="entry-hint" title="Draft">
-        <svg xmlns="http://www.w3.org/2000/svg" height="35" viewBox="0 -960 960 960" fill="currentColor">
-          <path
-            d="M160-410v-60h300v60H160Zm0-165v-60h470v60H160Zm0-165v-60h470v60H160Zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22q0 11-4.5 22.5T862.09-380L643-160H520Zm300-263-37-37 37 37ZM580-220h38l121-122-18-19-19-18-122 121v38Zm141-141-19-18 37 37-18-19Z" />
-        </svg>
-      </span>
     </h1>
     <div class="post-meta"><span title='2026-05-09 00:00:00 +0000 UTC'>May 9, 2026</span>&nbsp;·&nbsp;7 min
 
@@ -264,17 +324,17 @@
 
   <footer class="post-footer">
     <ul class="post-tags">
-      <li><a href="http://localhost:1313/tags/saambat/">Saambat</a></li>
-      <li><a href="http://localhost:1313/tags/kas/">Kas</a></li>
-      <li><a href="http://localhost:1313/tags/tsc/">Tsc</a></li>
-      <li><a href="http://localhost:1313/tags/re-architecture/">Re-Architecture</a></li>
+      <li><a href="http://radinreth.me/tags/saambat/">Saambat</a></li>
+      <li><a href="http://radinreth.me/tags/kas/">Kas</a></li>
+      <li><a href="http://radinreth.me/tags/tsc/">Tsc</a></li>
+      <li><a href="http://radinreth.me/tags/re-architecture/">Re-Architecture</a></li>
     </ul>
   </footer>
 </article>
     </main>
     
 <footer class="footer">
-        <span>&copy; 2026 <a href="http://localhost:1313/">Radin Reth</a></span> · 
+        <span>&copy; 2026 <a href="http://radinreth.me/">Radin Reth</a></span> · 
 
     <span>
         Powered by

@@ -2,52 +2,136 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>Tags on Radin Reth</title>
-    <link>http://localhost:1313/tags/</link>
+    <link>http://radinreth.me/tags/</link>
     <description>Recent content in Tags on Radin Reth</description>
     <generator>Hugo -- 0.147.3</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 09 May 2026 00:00:00 +0000</lastBuildDate>
-    <atom:link href="http://localhost:1313/tags/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 20 Oct 2026 00:00:00 +0000</lastBuildDate>
+    <atom:link href="http://radinreth.me/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>Kas</title>
-      <link>http://localhost:1313/tags/kas/</link>
-      <pubDate>Sat, 09 May 2026 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/tags/kas/</guid>
+      <title>Ai-Assisted-Development</title>
+      <link>http://radinreth.me/tags/ai-assisted-development/</link>
+      <pubDate>Tue, 20 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>http://radinreth.me/tags/ai-assisted-development/</guid>
       <description></description>
     </item>
     <item>
-      <title>Re-Architecture</title>
-      <link>http://localhost:1313/tags/re-architecture/</link>
-      <pubDate>Sat, 09 May 2026 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/tags/re-architecture/</guid>
+      <title>Camwallet</title>
+      <link>http://radinreth.me/tags/camwallet/</link>
+      <pubDate>Tue, 20 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>http://radinreth.me/tags/camwallet/</guid>
       <description></description>
     </item>
     <item>
-      <title>Saambat</title>
-      <link>http://localhost:1313/tags/saambat/</link>
-      <pubDate>Sat, 09 May 2026 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/tags/saambat/</guid>
+      <title>Esb</title>
+      <link>http://radinreth.me/tags/esb/</link>
+      <pubDate>Tue, 20 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>http://radinreth.me/tags/esb/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Kafka</title>
+      <link>http://radinreth.me/tags/kafka/</link>
+      <pubDate>Tue, 20 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>http://radinreth.me/tags/kafka/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Ledger</title>
+      <link>http://radinreth.me/tags/ledger/</link>
+      <pubDate>Tue, 20 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>http://radinreth.me/tags/ledger/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Microservices</title>
+      <link>http://radinreth.me/tags/microservices/</link>
+      <pubDate>Tue, 20 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>http://radinreth.me/tags/microservices/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Mot</title>
+      <link>http://radinreth.me/tags/mot/</link>
+      <pubDate>Tue, 20 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>http://radinreth.me/tags/mot/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Nuxt</title>
+      <link>http://radinreth.me/tags/nuxt/</link>
+      <pubDate>Tue, 20 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>http://radinreth.me/tags/nuxt/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Payments</title>
+      <link>http://radinreth.me/tags/payments/</link>
+      <pubDate>Tue, 20 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>http://radinreth.me/tags/payments/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Postgres</title>
+      <link>http://radinreth.me/tags/postgres/</link>
+      <pubDate>Tue, 20 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>http://radinreth.me/tags/postgres/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Process</title>
+      <link>http://radinreth.me/tags/process/</link>
+      <pubDate>Tue, 20 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>http://radinreth.me/tags/process/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Retrospective</title>
+      <link>http://radinreth.me/tags/retrospective/</link>
+      <pubDate>Tue, 20 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>http://radinreth.me/tags/retrospective/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Spring-Boot</title>
+      <link>http://radinreth.me/tags/spring-boot/</link>
+      <pubDate>Tue, 20 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>http://radinreth.me/tags/spring-boot/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Testing</title>
+      <link>http://radinreth.me/tags/testing/</link>
+      <pubDate>Tue, 20 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>http://radinreth.me/tags/testing/</guid>
       <description></description>
     </item>
     <item>
       <title>Tsc</title>
-      <link>http://localhost:1313/tags/tsc/</link>
+      <link>http://radinreth.me/tags/tsc/</link>
+      <pubDate>Tue, 20 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>http://radinreth.me/tags/tsc/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Kas</title>
+      <link>http://radinreth.me/tags/kas/</link>
       <pubDate>Sat, 09 May 2026 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/tags/tsc/</guid>
+      <guid>http://radinreth.me/tags/kas/</guid>
       <description></description>
     </item>
     <item>
-      <title>Math</title>
-      <link>http://localhost:1313/tags/math/</link>
-      <pubDate>Fri, 23 May 2025 11:17:02 +0700</pubDate>
-      <guid>http://localhost:1313/tags/math/</guid>
+      <title>Re-Architecture</title>
+      <link>http://radinreth.me/tags/re-architecture/</link>
+      <pubDate>Sat, 09 May 2026 00:00:00 +0000</pubDate>
+      <guid>http://radinreth.me/tags/re-architecture/</guid>
       <description></description>
     </item>
     <item>
-      <title>Japan</title>
-      <link>http://localhost:1313/tags/japan/</link>
-      <pubDate>Fri, 24 Jan 2025 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/tags/japan/</guid>
+      <title>Saambat</title>
+      <link>http://radinreth.me/tags/saambat/</link>
+      <pubDate>Sat, 09 May 2026 00:00:00 +0000</pubDate>
+      <guid>http://radinreth.me/tags/saambat/</guid>
       <description></description>
     </item>
   </channel>

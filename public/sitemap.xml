@@ -2,55 +2,88 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>http://localhost:1313/tags/kas/</loc>
+    <loc>http://radinreth.me/tags/ai-assisted-development/</loc>
+    <lastmod>2026-10-20T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>http://radinreth.me/tags/camwallet/</loc>
+    <lastmod>2026-10-20T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>http://radinreth.me/posts/camwallet-v2-closed-ledger/</loc>
+    <lastmod>2026-10-20T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>http://radinreth.me/posts/camwallet-building-with-an-agent-loop/</loc>
+    <lastmod>2026-10-20T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>http://radinreth.me/tags/esb/</loc>
+    <lastmod>2026-10-20T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>http://radinreth.me/posts/esb-mot-restaurant-licence-five-services/</loc>
+    <lastmod>2026-10-20T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>http://radinreth.me/posts/esb-mot-testing-twenty-repos/</loc>
+    <lastmod>2026-10-20T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>http://radinreth.me/tags/kafka/</loc>
+    <lastmod>2026-10-20T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>http://radinreth.me/tags/ledger/</loc>
+    <lastmod>2026-10-20T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>http://radinreth.me/tags/microservices/</loc>
+    <lastmod>2026-10-20T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>http://radinreth.me/tags/mot/</loc>
+    <lastmod>2026-10-20T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>http://radinreth.me/tags/nuxt/</loc>
+    <lastmod>2026-10-20T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>http://radinreth.me/tags/payments/</loc>
+    <lastmod>2026-10-20T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>http://radinreth.me/tags/postgres/</loc>
+    <lastmod>2026-10-20T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>http://radinreth.me/posts/</loc>
+    <lastmod>2026-10-20T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>http://radinreth.me/tags/process/</loc>
+    <lastmod>2026-10-20T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>http://radinreth.me/</loc>
+    <lastmod>2026-10-20T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>http://radinreth.me/tags/retrospective/</loc>
+    <lastmod>2026-10-20T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>http://radinreth.me/tags/spring-boot/</loc>
+    <lastmod>2026-10-20T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>http://radinreth.me/tags/</loc>
+    <lastmod>2026-10-20T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>http://radinreth.me/tags/testing/</loc>
+    <lastmod>2026-10-20T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>http://radinreth.me/tags/tsc/</loc>
+    <lastmod>2026-10-20T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>http://radinreth.me/tags/kas/</loc>
     <lastmod>2026-05-09T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/posts/</loc>
+    <loc>http://radinreth.me/tags/re-architecture/</loc>
     <lastmod>2026-05-09T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/</loc>
+    <loc>http://radinreth.me/posts/saambat-kas-re-engineering-phase-1/</loc>
     <lastmod>2026-05-09T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/tags/re-architecture/</loc>
+    <loc>http://radinreth.me/tags/saambat/</loc>
     <lastmod>2026-05-09T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/posts/saambat-kas-re-engineering-phase-1/</loc>
-    <lastmod>2026-05-09T00:00:00+00:00</lastmod>
+    <loc>http://radinreth.me/archives/</loc>
   </url><url>
-    <loc>http://localhost:1313/tags/saambat/</loc>
-    <lastmod>2026-05-09T00:00:00+00:00</lastmod>
+    <loc>http://radinreth.me/categories/</loc>
   </url><url>
-    <loc>http://localhost:1313/tags/</loc>
-    <lastmod>2026-05-09T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/tags/tsc/</loc>
-    <lastmod>2026-05-09T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/tags/math/</loc>
-    <lastmod>2025-05-23T11:17:02+07:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/posts/mathematics-for-machine-learning/</loc>
-    <lastmod>2025-05-23T11:17:02+07:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/posts/linear-algebra-done-right/</loc>
-    <lastmod>2025-05-13T15:56:14+07:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/tags/japan/</loc>
-    <lastmod>2025-01-24T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/posts/student-life-in-japan/</loc>
-    <lastmod>2025-01-24T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/posts/my-second-post/</loc>
-    <lastmod>2025-01-19T15:59:36+09:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/posts/my-first-post/</loc>
-    <lastmod>2025-01-19T15:58:17+09:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/archives/</loc>
-  </url><url>
-    <loc>http://localhost:1313/categories/</loc>
-  </url><url>
-    <loc>http://localhost:1313/search/</loc>
+    <loc>http://radinreth.me/search/</loc>
   </url>
 </urlset>
