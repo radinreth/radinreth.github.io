@@ -9,11 +9,11 @@
     <lastBuildDate>Tue, 20 Oct 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="http://radinreth.me/tags/ai-assisted-development/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>CamWallet: What Two Retrospectives Taught Me About Building With an Agent Loop</title>
-      <link>http://radinreth.me/posts/camwallet-building-with-an-agent-loop/</link>
+      <title>CamWallet v2: Benefit Payments on a Closed Ledger</title>
+      <link>http://radinreth.me/posts/camwallet-v2-benefit-payments/</link>
       <pubDate>Tue, 20 Oct 2026 00:00:00 +0000</pubDate>
-      <guid>http://radinreth.me/posts/camwallet-building-with-an-agent-loop/</guid>
-      <description>CamWallet&amp;rsquo;s v2 epics were built with an unattended AI agent loop. Two retrospectives showed the same pattern each time: the loop built too much, a human review cut it back, and the history recorded both.</description>
+      <guid>http://radinreth.me/posts/camwallet-v2-benefit-payments/</guid>
+      <description>How CamWallet v2 lets government schemes pay beneficiaries and merchants in real time without a bank integration, why a double-entry ledger makes it auditable, and what building it with an AI agent loop taught me.</description>
     </item>
   </channel>
 </rss>

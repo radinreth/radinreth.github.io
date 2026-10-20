@@ -9,11 +9,11 @@
     <lastBuildDate>Tue, 20 Oct 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="http://radinreth.me/tags/ledger/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>CamWallet v2: A Closed Ledger With No Bank in the Path</title>
-      <link>http://radinreth.me/posts/camwallet-v2-closed-ledger/</link>
+      <title>CamWallet v2: Benefit Payments on a Closed Ledger</title>
+      <link>http://radinreth.me/posts/camwallet-v2-benefit-payments/</link>
       <pubDate>Tue, 20 Oct 2026 00:00:00 +0000</pubDate>
-      <guid>http://radinreth.me/posts/camwallet-v2-closed-ledger/</guid>
-      <description>How CamWallet&amp;rsquo;s second version changed two assumptions, who decides eligibility and where payment happens, and why everything else in the design follows from those two changes.</description>
+      <guid>http://radinreth.me/posts/camwallet-v2-benefit-payments/</guid>
+      <description>How CamWallet v2 lets government schemes pay beneficiaries and merchants in real time without a bank integration, why a double-entry ledger makes it auditable, and what building it with an AI agent loop taught me.</description>
     </item>
   </channel>
 </rss>

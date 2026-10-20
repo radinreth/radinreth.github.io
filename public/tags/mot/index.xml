@@ -9,18 +9,11 @@
     <lastBuildDate>Tue, 20 Oct 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="http://radinreth.me/tags/mot/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>ESB-MOT: One Restaurant Licence, Five Services</title>
-      <link>http://radinreth.me/posts/esb-mot-restaurant-licence-five-services/</link>
+      <title>ESB-MOT: Building Online Tourism Licensing for Cambodia</title>
+      <link>http://radinreth.me/posts/esb-mot-tourism-licensing-platform/</link>
       <pubDate>Tue, 20 Oct 2026 00:00:00 +0000</pubDate>
-      <guid>http://radinreth.me/posts/esb-mot-restaurant-licence-five-services/</guid>
-      <description>Tracing a single restaurant licence application through the Ministry of Tourism&amp;rsquo;s ESB platform, from a Nuxt form to a signed PDF, across five Spring Boot services and two Kafka hops.</description>
-    </item>
-    <item>
-      <title>ESB-MOT: Testing a Platform Spread Across Twenty Repos</title>
-      <link>http://radinreth.me/posts/esb-mot-testing-twenty-repos/</link>
-      <pubDate>Tue, 20 Oct 2026 00:00:00 +0000</pubDate>
-      <guid>http://radinreth.me/posts/esb-mot-testing-twenty-repos/</guid>
-      <description>MOT had no tests running in CI, and the defects that reached dev clustered at the boundaries between services. Notes on re-verifying a stale bug ledger, a stale department header, and a testing strategy built around where defects actually land.</description>
+      <guid>http://radinreth.me/posts/esb-mot-tourism-licensing-platform/</guid>
+      <description>What I learned building the Ministry of Tourism&amp;rsquo;s online licensing platform at TSC: what it changes for businesses and the ministry, how one licence moves through five services, and where the bugs actually came from.</description>
     </item>
   </channel>
 </rss>

@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>ESB-MOT: Building Online Tourism Licensing for Cambodia | Radin Reth</title>
+<meta name="keywords" content="esb, mot, tsc, govtech, microservices, testing">
+<meta name="description" content="What I learned building the Ministry of Tourism&rsquo;s online licensing platform at TSC: what it changes for businesses and the ministry, how one licence moves through five services, and where the bugs actually came from.">
+<meta name="author" content="">
+<link rel="canonical" href="http://radinreth.me/posts/esb-mot-tourism-licensing-platform/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.f49d66caae9ea0fd43f21f29e71a8d3e284517ed770f2aa86fa012953ad3c9ef.css" integrity="sha256-9J1myq6eoP1D8h8p5xqNPihFF&#43;13Dyqob6ASlTrTye8=" rel="preload stylesheet" as="style">
+<link rel="icon" href="http://radinreth.me/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://radinreth.me/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://radinreth.me/favicon-32x32.png">
+<link rel="apple-touch-icon" href="http://radinreth.me/apple-touch-icon.png">
+<link rel="mask-icon" href="http://radinreth.me/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="http://radinreth.me/posts/esb-mot-tourism-licensing-platform/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript>
+<meta property="og:url" content="http://radinreth.me/posts/esb-mot-tourism-licensing-platform/">
+  <meta property="og:site_name" content="Radin Reth">
+  <meta property="og:title" content="ESB-MOT: Building Online Tourism Licensing for Cambodia">
+  <meta property="og:description" content="What I learned building the Ministry of Tourism’s online licensing platform at TSC: what it changes for businesses and the ministry, how one licence moves through five services, and where the bugs actually came from.">
+  <meta property="og:locale" content="en-us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-10-20T00:00:00+00:00">
+    <meta property="article:modified_time" content="2026-10-20T00:00:00+00:00">
+    <meta property="article:tag" content="Esb">
+    <meta property="article:tag" content="Mot">
+    <meta property="article:tag" content="Tsc">
+    <meta property="article:tag" content="Govtech">
+    <meta property="article:tag" content="Microservices">
+    <meta property="article:tag" content="Testing">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ESB-MOT: Building Online Tourism Licensing for Cambodia">
+<meta name="twitter:description" content="What I learned building the Ministry of Tourism&rsquo;s online licensing platform at TSC: what it changes for businesses and the ministry, how one licence moves through five services, and where the bugs actually came from.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "http://radinreth.me/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "ESB-MOT: Building Online Tourism Licensing for Cambodia",
+      "item": "http://radinreth.me/posts/esb-mot-tourism-licensing-platform/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "ESB-MOT: Building Online Tourism Licensing for Cambodia",
+  "name": "ESB-MOT: Building Online Tourism Licensing for Cambodia",
+  "description": "What I learned building the Ministry of Tourism\u0026rsquo;s online licensing platform at TSC: what it changes for businesses and the ministry, how one licence moves through five services, and where the bugs actually came from.",
+  "keywords": [
+    "esb", "mot", "tsc", "govtech", "microservices", "testing"
+  ],
+  "articleBody": "Introduction I’m a software engineer at TSC (Techo Startup Center), and for most of 2026 I’ve worked on ESB-MOT, the Ministry of Tourism’s online licensing platform. This post covers what the platform does, why it matters to the people who use it, how it works underneath, and what I would do differently.\nI wrote it for three kinds of reader. Engineers joining a government microservices project will find the architecture walk-through and the testing lessons useful. People planning digital public services will find the section on value. Anyone curious about how a restaurant licence gets issued in Cambodia today can read it from the top.\nWhat ESB is, and what it changes ESB stands for E-Services for Business. It is a Royal Government of Cambodia programme that gives ministries a shared foundation for digital public services. Most licensing follows the same path. A business applies, an officer reviews, the business pays, and the ministry issues a certificate. TSC maintains an open generic template for that path, and each ministry runs its own instance. MOT is the tourism instance, and its first licences cover restaurants, accommodation, sport venues and tour agents.\nThe value shows up for three groups.\nBusinesses apply, pay and track their application online instead of visiting an office and carrying paper between desks. Each licence’s fee follows a published schedule. For restaurants, the seating-capacity band is the fee line item, so the owner sees the price before submitting. The ministry gets one backoffice where officers review applications in department-scoped queues. Renewal rules and late penalties are configuration that staff can edit, so a policy change doesn’t need a developer. The public can trust the certificate. The official tourism licence carries a verification QR, and scanning it through verify.gov confirms the licence is genuine. A dedicated service batches payments to the national treasury system (NRMIS), so revenue can reconcile without manual re-entry once that service is deployed. The template also saves effort across government. Each ministry adapts a working platform instead of commissioning its own from scratch. MOT itself was forked from the agriculture ministry’s instance, and the code still carries farm-licence names like FarmType. That cost is real, but it is much smaller than starting over.\nHow one licence moves through the system The platform is about twenty independent repos. They contain two Nuxt portals (one for the public, one for the backoffice), Spring Boot services, two Spring Cloud Gateways, shared libraries and infrastructure. Services talk mostly through Avro messages on Kafka.\nA new restaurant licence passes through five services.\nrestaurant form (public portal) → Nitro proxy → public gateway → application-service (save and submit) → Kafka → review-service (officer approves) → Kafka → application-service (marks approved) → Kafka → profile-service (creates the licence) → certificate-service (renders the PDF with its QR) New applications must be paid before an officer sees them. A platform-wide switch chooses between pay-first-review-later and review-first-pay-later, and changing it changes the whole application lifecycle.\nA few design choices keep this manageable.\nThe browser never calls a backend directly. The portal’s own Nitro server proxies every request and turns the httpOnly auth cookie into a Bearer header. Each licence type has a service code and a strategy class. GDTI-RT-L is a new restaurant licence, and adding a licence type means adding strategies rather than growing a switch. Kafka messages go out after the database commits. Business code publishes a Spring domain event, and a transactional listener sends the message after the commit. A rolled-back submission can’t start a review for a row that doesn’t exist. Message schemas live in one repo. Services download their Avro schemas from the Schema Registry at build time, so the producer and the consumer read the same contract. The other operations reuse most of the chain. Renewal runs the editable rule engine and can add a bilingual late-penalty invoice line. Amendment can change the licensee, address and details, but not the capacity band, because the band is the fee. Transfer looks up the recipient’s identity, and termination revokes the existing certificate. Transfer and termination skip the payment gate and go straight to review.\nWhere the bugs came from When I looked at the defects that reached our dev environment, very few were inside a single service. Most of them sat on a joint between two correct pieces.\nA portal called an endpoint that the gateway had no route for. Gateway routes are Java classes, so a forgotten route returns 404 before the service ever sees the request. A producer and a consumer disagreed about an Avro field. I also lost an afternoon to the tenant prefix. The schema publisher adds its own trailing dot, so passing esb. produced subjects named esb..application_submitted_message-value. A seeder inserted duplicate keys, or a fee row lacked a revenue code that the ministry’s workbook listed. A guarded endpoint rejected a user who should have had access. The last case is a good example. Backoffice staff sometimes got a 403 saying they couldn’t view applications from other departments, even in their own department. The portal kept the selected department in a module-level singleton and in a localStorage key that wasn’t tied to any user. Only the explicit Logout button cleared it. After a failed token refresh, the next user inherited the previous user’s department. The backend was right to refuse the request. It had simply received a stale header from the client.\nBringing tests back In October 2026 no test ran in CI, and the Jenkins builds skipped tests. Many test files existed on developers’ machines but had never been committed. When I brought them under version control on 2026-10-19, the baseline was red in 15 of 16 Maven repos and in both portals, and 23 test classes didn’t compile.\nWe also keep a ledger of deferred defects, and nobody revisits an entry after writing it. I re-checked all 26 open high-severity entries against the current code and databases. Four were already fixed, eleven were confirmed real, and several had a different cause from the one recorded.\nThe testing strategy we wrote assigns each defect class to the cheapest layer that catches it.\nOffline unit tests for each service that run without Schema Registry or Docker. CI can’t run anything until this layer exists. Message-contract checks that reject an incompatible Avro change. Gateway route coverage, so that every portal call has a route. Persistence tests against real Postgres through Testcontainers. Authorization tests for each role and department. What you can take from this If you work on a similar platform, these are the lessons I’d pass on.\nTest the joints first. In a multi-repo system, most defects come from two correct pieces disagreeing. Route coverage and contract tests catch more real bugs than extra unit tests. Make the first test layer runnable anywhere. If the build needs a running registry or Docker, CI can’t run the tests, and a test that never runs drifts until it no longer compiles. Re-verify a bug list before you plan from it. An entry records what someone believed on the day they wrote it. Tie client-side context to the user and the session. Any state the client sends as a header must be cleared on every way a session ends, not only the Logout button. Trace one flow end to end before you change anything. I wrote a hop-by-hop trace for a teammate coming from Rails, and it was the most useful document I produced all year. Put policy in configuration. Fees, eligibility rules and penalties change with ministry decisions. When staff can edit them, the platform keeps up with policy without a release. ",
+  "wordCount" : "1263",
+  "inLanguage": "en",
+  "datePublished": "2026-10-20T00:00:00Z",
+  "dateModified": "2026-10-20T00:00:00Z",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "http://radinreth.me/posts/esb-mot-tourism-licensing-platform/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Radin Reth",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "http://radinreth.me/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="http://radinreth.me/" accesskey="h" title="Radin Reth (Alt + H)">Radin Reth</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="http://radinreth.me/posts/" title="Posts">
+                    <span>Posts</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://radinreth.me/archives/" title="Archive">
+                    <span>Archive</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://radinreth.me/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://radinreth.me/tags/" title="Tags">
+                    <span>Tags</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="http://radinreth.me/">Home</a>&nbsp;»&nbsp;<a href="http://radinreth.me/posts/">Posts</a></div>
+    <h1 class="post-title entry-hint-parent">
+      ESB-MOT: Building Online Tourism Licensing for Cambodia
+    </h1>
+    <div class="post-meta"><span title='2026-10-20 00:00:00 +0000 UTC'>October 20, 2026</span>&nbsp;·&nbsp;6 min
+
+</div>
+  </header> <div class="toc">
+    <details >
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#introduction" aria-label="Introduction">Introduction</a></li>
+                <li>
+                    <a href="#what-esb-is-and-what-it-changes" aria-label="What ESB is, and what it changes">What ESB is, and what it changes</a></li>
+                <li>
+                    <a href="#how-one-licence-moves-through-the-system" aria-label="How one licence moves through the system">How one licence moves through the system</a></li>
+                <li>
+                    <a href="#where-the-bugs-came-from" aria-label="Where the bugs came from">Where the bugs came from</a></li>
+                <li>
+                    <a href="#bringing-tests-back" aria-label="Bringing tests back">Bringing tests back</a></li>
+                <li>
+                    <a href="#what-you-can-take-from-this" aria-label="What you can take from this">What you can take from this</a>
+                </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><h2 id="introduction">Introduction<a hidden class="anchor" aria-hidden="true" href="#introduction">#</a></h2>
+<p>I&rsquo;m a software engineer at TSC (Techo Startup Center), and for most of 2026 I&rsquo;ve worked on <strong>ESB-MOT</strong>, the Ministry of Tourism&rsquo;s online licensing platform. This post covers what the platform does, why it matters to the people who use it, how it works underneath, and what I would do differently.</p>
+<p>I wrote it for three kinds of reader. Engineers joining a government microservices project will find the architecture walk-through and the testing lessons useful. People planning digital public services will find the section on value. Anyone curious about how a restaurant licence gets issued in Cambodia today can read it from the top.</p>
+<h2 id="what-esb-is-and-what-it-changes">What ESB is, and what it changes<a hidden class="anchor" aria-hidden="true" href="#what-esb-is-and-what-it-changes">#</a></h2>
+<p>ESB stands for E-Services for Business. It is a Royal Government of Cambodia programme that gives ministries a shared foundation for digital public services. Most licensing follows the same path. A business applies, an officer reviews, the business pays, and the ministry issues a certificate. TSC maintains an open <strong>generic template</strong> for that path, and each ministry runs its own instance. MOT is the tourism instance, and its first licences cover restaurants, accommodation, sport venues and tour agents.</p>
+<p>The value shows up for three groups.</p>
+<ul>
+<li><strong>Businesses</strong> apply, pay and track their application online instead of visiting an office and carrying paper between desks. Each licence&rsquo;s fee follows a published schedule. For restaurants, the seating-capacity band is the fee line item, so the owner sees the price before submitting.</li>
+<li><strong>The ministry</strong> gets one backoffice where officers review applications in department-scoped queues. Renewal rules and late penalties are configuration that staff can edit, so a policy change doesn&rsquo;t need a developer.</li>
+<li><strong>The public</strong> can trust the certificate. The official tourism licence carries a verification QR, and scanning it through verify.gov confirms the licence is genuine. A dedicated service batches payments to the national treasury system (NRMIS), so revenue can reconcile without manual re-entry once that service is deployed.</li>
+</ul>
+<p>The template also saves effort across government. Each ministry adapts a working platform instead of commissioning its own from scratch. MOT itself was forked from the agriculture ministry&rsquo;s instance, and the code still carries farm-licence names like <code>FarmType</code>. That cost is real, but it is much smaller than starting over.</p>
+<h2 id="how-one-licence-moves-through-the-system">How one licence moves through the system<a hidden class="anchor" aria-hidden="true" href="#how-one-licence-moves-through-the-system">#</a></h2>
+<p>The platform is about twenty independent repos. They contain two Nuxt portals (one for the public, one for the backoffice), Spring Boot services, two Spring Cloud Gateways, shared libraries and infrastructure. Services talk mostly through Avro messages on Kafka.</p>
+<p>A new restaurant licence passes through five services.</p>
+<pre tabindex="0"><code>restaurant form (public portal)
+  → Nitro proxy → public gateway
+  → application-service   (save and submit)
+  → Kafka → review-service (officer approves)
+  → Kafka → application-service (marks approved)
+  → Kafka → profile-service (creates the licence)
+  → certificate-service   (renders the PDF with its QR)
+</code></pre><p>New applications must be paid before an officer sees them. A platform-wide switch chooses between pay-first-review-later and review-first-pay-later, and changing it changes the whole application lifecycle.</p>
+<p>A few design choices keep this manageable.</p>
+<ul>
+<li><strong>The browser never calls a backend directly.</strong> The portal&rsquo;s own Nitro server proxies every request and turns the httpOnly auth cookie into a Bearer header.</li>
+<li><strong>Each licence type has a service code and a strategy class.</strong> <code>GDTI-RT-L</code> is a new restaurant licence, and adding a licence type means adding strategies rather than growing a <code>switch</code>.</li>
+<li><strong>Kafka messages go out after the database commits.</strong> Business code publishes a Spring domain event, and a transactional listener sends the message after the commit. A rolled-back submission can&rsquo;t start a review for a row that doesn&rsquo;t exist.</li>
+<li><strong>Message schemas live in one repo.</strong> Services download their Avro schemas from the Schema Registry at build time, so the producer and the consumer read the same contract.</li>
+</ul>
+<p>The other operations reuse most of the chain. Renewal runs the editable rule engine and can add a bilingual late-penalty invoice line. Amendment can change the licensee, address and details, but not the capacity band, because the band is the fee. Transfer looks up the recipient&rsquo;s identity, and termination revokes the existing certificate. Transfer and termination skip the payment gate and go straight to review.</p>
+<h2 id="where-the-bugs-came-from">Where the bugs came from<a hidden class="anchor" aria-hidden="true" href="#where-the-bugs-came-from">#</a></h2>
+<p>When I looked at the defects that reached our dev environment, very few were inside a single service. Most of them sat on a joint between two correct pieces.</p>
+<ul>
+<li>A portal called an endpoint that the gateway had no route for. Gateway routes are Java classes, so a forgotten route returns 404 before the service ever sees the request.</li>
+<li>A producer and a consumer disagreed about an Avro field. I also lost an afternoon to the tenant prefix. The schema publisher adds its own trailing dot, so passing <code>esb.</code> produced subjects named <code>esb..application_submitted_message-value</code>.</li>
+<li>A seeder inserted duplicate keys, or a fee row lacked a revenue code that the ministry&rsquo;s workbook listed.</li>
+<li>A guarded endpoint rejected a user who should have had access.</li>
+</ul>
+<p>The last case is a good example. Backoffice staff sometimes got a 403 saying they couldn&rsquo;t view applications from other departments, even in their own department. The portal kept the selected department in a module-level singleton and in a localStorage key that wasn&rsquo;t tied to any user. Only the explicit Logout button cleared it. After a failed token refresh, the next user inherited the previous user&rsquo;s department. The backend was right to refuse the request. It had simply received a stale header from the client.</p>
+<h2 id="bringing-tests-back">Bringing tests back<a hidden class="anchor" aria-hidden="true" href="#bringing-tests-back">#</a></h2>
+<p>In October 2026 no test ran in CI, and the Jenkins builds skipped tests. Many test files existed on developers&rsquo; machines but had never been committed. When I brought them under version control on 2026-10-19, the baseline was red in 15 of 16 Maven repos and in both portals, and 23 test classes didn&rsquo;t compile.</p>
+<p>We also keep a ledger of deferred defects, and nobody revisits an entry after writing it. I re-checked all 26 open high-severity entries against the current code and databases. Four were already fixed, eleven were confirmed real, and several had a different cause from the one recorded.</p>
+<p>The testing strategy we wrote assigns each defect class to the cheapest layer that catches it.</p>
+<ol>
+<li>Offline unit tests for each service that run without Schema Registry or Docker. CI can&rsquo;t run anything until this layer exists.</li>
+<li>Message-contract checks that reject an incompatible Avro change.</li>
+<li>Gateway route coverage, so that every portal call has a route.</li>
+<li>Persistence tests against real Postgres through Testcontainers.</li>
+<li>Authorization tests for each role and department.</li>
+</ol>
+<h2 id="what-you-can-take-from-this">What you can take from this<a hidden class="anchor" aria-hidden="true" href="#what-you-can-take-from-this">#</a></h2>
+<p>If you work on a similar platform, these are the lessons I&rsquo;d pass on.</p>
+<ul>
+<li><strong>Test the joints first.</strong> In a multi-repo system, most defects come from two correct pieces disagreeing. Route coverage and contract tests catch more real bugs than extra unit tests.</li>
+<li><strong>Make the first test layer runnable anywhere.</strong> If the build needs a running registry or Docker, CI can&rsquo;t run the tests, and a test that never runs drifts until it no longer compiles.</li>
+<li><strong>Re-verify a bug list before you plan from it.</strong> An entry records what someone believed on the day they wrote it.</li>
+<li><strong>Tie client-side context to the user and the session.</strong> Any state the client sends as a header must be cleared on every way a session ends, not only the Logout button.</li>
+<li><strong>Trace one flow end to end before you change anything.</strong> I wrote a hop-by-hop trace for a teammate coming from Rails, and it was the most useful document I produced all year.</li>
+<li><strong>Put policy in configuration.</strong> Fees, eligibility rules and penalties change with ministry decisions. When staff can edit them, the platform keeps up with policy without a release.</li>
+</ul>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="http://radinreth.me/tags/esb/">Esb</a></li>
+      <li><a href="http://radinreth.me/tags/mot/">Mot</a></li>
+      <li><a href="http://radinreth.me/tags/tsc/">Tsc</a></li>
+      <li><a href="http://radinreth.me/tags/govtech/">Govtech</a></li>
+      <li><a href="http://radinreth.me/tags/microservices/">Microservices</a></li>
+      <li><a href="http://radinreth.me/tags/testing/">Testing</a></li>
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="http://radinreth.me/">Radin Reth</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

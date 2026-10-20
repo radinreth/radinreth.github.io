@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>CamWallet v2: Benefit Payments on a Closed Ledger | Radin Reth</title>
+<meta name="keywords" content="camwallet, tsc, govtech, ledger, payments, ai-assisted-development">
+<meta name="description" content="How CamWallet v2 lets government schemes pay beneficiaries and merchants in real time without a bank integration, why a double-entry ledger makes it auditable, and what building it with an AI agent loop taught me.">
+<meta name="author" content="">
+<link rel="canonical" href="http://radinreth.me/posts/camwallet-v2-benefit-payments/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.f49d66caae9ea0fd43f21f29e71a8d3e284517ed770f2aa86fa012953ad3c9ef.css" integrity="sha256-9J1myq6eoP1D8h8p5xqNPihFF&#43;13Dyqob6ASlTrTye8=" rel="preload stylesheet" as="style">
+<link rel="icon" href="http://radinreth.me/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://radinreth.me/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://radinreth.me/favicon-32x32.png">
+<link rel="apple-touch-icon" href="http://radinreth.me/apple-touch-icon.png">
+<link rel="mask-icon" href="http://radinreth.me/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="http://radinreth.me/posts/camwallet-v2-benefit-payments/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript>
+<meta property="og:url" content="http://radinreth.me/posts/camwallet-v2-benefit-payments/">
+  <meta property="og:site_name" content="Radin Reth">
+  <meta property="og:title" content="CamWallet v2: Benefit Payments on a Closed Ledger">
+  <meta property="og:description" content="How CamWallet v2 lets government schemes pay beneficiaries and merchants in real time without a bank integration, why a double-entry ledger makes it auditable, and what building it with an AI agent loop taught me.">
+  <meta property="og:locale" content="en-us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-10-20T00:00:00+00:00">
+    <meta property="article:modified_time" content="2026-10-20T00:00:00+00:00">
+    <meta property="article:tag" content="Camwallet">
+    <meta property="article:tag" content="Tsc">
+    <meta property="article:tag" content="Govtech">
+    <meta property="article:tag" content="Ledger">
+    <meta property="article:tag" content="Payments">
+    <meta property="article:tag" content="Ai-Assisted-Development">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="CamWallet v2: Benefit Payments on a Closed Ledger">
+<meta name="twitter:description" content="How CamWallet v2 lets government schemes pay beneficiaries and merchants in real time without a bank integration, why a double-entry ledger makes it auditable, and what building it with an AI agent loop taught me.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "http://radinreth.me/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "CamWallet v2: Benefit Payments on a Closed Ledger",
+      "item": "http://radinreth.me/posts/camwallet-v2-benefit-payments/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "CamWallet v2: Benefit Payments on a Closed Ledger",
+  "name": "CamWallet v2: Benefit Payments on a Closed Ledger",
+  "description": "How CamWallet v2 lets government schemes pay beneficiaries and merchants in real time without a bank integration, why a double-entry ledger makes it auditable, and what building it with an AI agent loop taught me.",
+  "keywords": [
+    "camwallet", "tsc", "govtech", "ledger", "payments", "ai-assisted-development"
+  ],
+  "articleBody": "Introduction I’m a software engineer at TSC (Techo Startup Center), and since September 2026 I’ve been building CamWallet v2. CamWallet is a platform that helps government benefit schemes deliver value to the people they’re meant for, and lets those people spend it with approved merchants.\nThis post explains what v2 changes and why it helps scheme owners, beneficiaries and merchants. It walks through the ledger design that makes the money auditable, and it ends with what I learned from building the epics with an unattended AI agent loop. Engineers working on payments or wallets should get the most from the ledger section. Teams trying AI-assisted development should get the most from the last two sections.\nWhat v2 changes, and why it matters Version 1 worked in four steps.\nA scheme defined eligibility rules, and CamWallet decided who qualified. People who qualified received value in a wallet. They paid merchants through a bank, using Bakong, ABA or ACLEDA. The bank confirmed the payment, and CamWallet recorded the outcome. Version 2 changes the first and third steps. The scheme owner decides who qualifies in their own system, and CamWallet records that decision without re-checking it. Payment happens inside CamWallet, from a beneficiary’s grant to a merchant’s balance, with no bank in the path. The ledger, CamDigiKey login, disbursement scheduling, idempotency and audit trail all carry over, so v2 is a milestone on the existing codebase rather than a rewrite.\nThose two changes give each group something concrete.\nScheme owners keep control of eligibility, which is their policy decision anyway. CamWallet makes sure the money is spent only with approved merchants, and it tells the owner exactly what to pay each merchant at settlement. Beneficiaries pay by scanning a merchant’s QR in the CamDigiKey app, the national digital identity app they already use. The payment completes immediately, and a declined payment always records one specific reason. Merchants see each payment arrive in the Merchant App and know exactly what each scheme owes them. A merchant with several counters can print a labelled QR for each one. Auditors and finance teams can reconcile every scheme with one balance check instead of investigating transactions by hand. The project delivers a working pilot without waiting for a bank integration. Removing the bank also removed the payment-gateway clients, the eligibility engine and the registry lookup. For a four-week build at pilot volume, Postgres replaced most of the Postgres, MinIO and Kafka stack in the original proposal. The ledger Everything is a transfer between two accounts. Entries are appended and never changed, and replaying an account’s entries explains its balance. That turns reconciliation into arithmetic.\nAccount What it holds scheme:{id}:expenditure Total ever granted in the scheme grant:{id} One grant’s unspent value payable:{scheme}:{merchant} What the scheme owes one merchant scheme:{id}:paid_out Total recorded as paid to merchants scheme:{id}:returned Unspent value from expired grants Each enrolment is a grant with its own amount and validity dates, and a beneficiary can hold several. A wallet isn’t an account. It is the set of a beneficiary’s grants in one scheme, and its spendable balance counts only grants that are valid today. Payables are kept per scheme, so a merchant serving two schemes has two payables that settle separately.\nOperation From → To Disburse scheme expenditure → grant Pay grant (soonest end date first) → payable Record payout payable → scheme paid_out Return expired value grant → scheme returned Expenditure moves only on disbursement, so each scheme satisfies one identity that we check in a single query and assert in a test.\ngranted = Σ grant balances + Σ payables + paid_out + returned Keeping it correct in Postgres With no bank involved, a payment is one ACID transaction in one database. It needs no distributed transaction and no compensating action. A few rules protect the ledger.\nEntries are immutable. A trigger rejects UPDATE and DELETE on ledger entries, so a correction is always a new reversing entry. Cached balances change atomically. Grant and payable balances are cached for payment checks. They change only inside one posting method, through SET balance = balance + :delta, never through a read-modify-write in Java. A test asserts that each cached balance equals the sum of its entries. Every transfer balances. The posting code rejects an unbalanced set of entries before writing. Locks guard the checks. A payment locks the beneficiary’s wallet row before reading any grant, and a dynamic QR is locked first so it can’t be paid twice. Money is exact. Amounts are numeric(19,4) and always carry a currency, and a posting across two currencies is rejected. Each declined payment carries exactly one code from a fixed list, such as QR_EXPIRED, MERCHANT_NOT_PARTICIPATING, CREDIT_EXPIRED or INSUFFICIENT_BALANCE. Reports can group declines by reason from day one, and adding a code later is cheap.\nBuilding it with an AI agent loop I implemented the v2 epics with the BMad Method and bmad-loop, a CLI that runs the implementation phase unattended. It picks a story, writes a spec, implements it, runs a compile-and-typecheck gate and moves on. I held retrospectives after Epic 1 (merchant management) and Epic 3 (scheme participation), and both found the same pattern.\nIn Epic 1 the loop built all seven stories, plus seven capabilities the pilot didn’t need, including member management, server-side paging and an idempotency key. Human review removed them. The feature commit was about 2,500 lines, and the net change after the slim-down was about 550. The loop’s own review step never triggered, so every defect was found by a person.\nEpic 3 was smaller and still left about 250 lines on dev that didn’t survive. The plan said to build a JSON deserializer that dev already had, and the agent followed the plan. A rule to write minimal tests was overshot at first, and then the trim cut the only tests that checked membership and roles.\nThe code compiled and the tests passed in both epics. The cost came from building the wrong amount of the right thing. The loop is good at matching a plan, but it doesn’t notice when the plan has gone stale or asks for more than the pilot needs.\nWhat you can take from this These are the lessons I’d pass on to anyone building something similar.\nLook for the one or two assumptions that drive the design. Writing v2 down as two changed steps out of four made every later decision easier to test. If a proposal followed from neither change, it usually belonged in a later phase. Keep money movements inside one database when you can. A single transaction removes the hardest failure cases in payments. Make the ledger append-only and prove it balances. An immutable entry table plus one reconciliation identity gives auditors a check they can run themselves. Use a closed list of decline reasons. It costs nothing at the start and saves a painful clean-up later. With an agent loop, do the judgement work before the run. Write down each story’s pilot scope and deferrals, check the plan against the current branch, and name the tests that protect something real, such as tenancy and roles, instead of setting a test count. Keep a human review gate on purpose. In both epics, every real defect was found in human review. ",
+  "wordCount" : "1206",
+  "inLanguage": "en",
+  "datePublished": "2026-10-20T00:00:00Z",
+  "dateModified": "2026-10-20T00:00:00Z",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "http://radinreth.me/posts/camwallet-v2-benefit-payments/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Radin Reth",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "http://radinreth.me/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="http://radinreth.me/" accesskey="h" title="Radin Reth (Alt + H)">Radin Reth</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="http://radinreth.me/posts/" title="Posts">
+                    <span>Posts</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://radinreth.me/archives/" title="Archive">
+                    <span>Archive</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://radinreth.me/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://radinreth.me/tags/" title="Tags">
+                    <span>Tags</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="http://radinreth.me/">Home</a>&nbsp;»&nbsp;<a href="http://radinreth.me/posts/">Posts</a></div>
+    <h1 class="post-title entry-hint-parent">
+      CamWallet v2: Benefit Payments on a Closed Ledger
+    </h1>
+    <div class="post-meta"><span title='2026-10-20 00:00:00 +0000 UTC'>October 20, 2026</span>&nbsp;·&nbsp;6 min
+
+</div>
+  </header> <div class="toc">
+    <details >
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#introduction" aria-label="Introduction">Introduction</a></li>
+                <li>
+                    <a href="#what-v2-changes-and-why-it-matters" aria-label="What v2 changes, and why it matters">What v2 changes, and why it matters</a></li>
+                <li>
+                    <a href="#the-ledger" aria-label="The ledger">The ledger</a></li>
+                <li>
+                    <a href="#keeping-it-correct-in-postgres" aria-label="Keeping it correct in Postgres">Keeping it correct in Postgres</a></li>
+                <li>
+                    <a href="#building-it-with-an-ai-agent-loop" aria-label="Building it with an AI agent loop">Building it with an AI agent loop</a></li>
+                <li>
+                    <a href="#what-you-can-take-from-this" aria-label="What you can take from this">What you can take from this</a>
+                </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><h2 id="introduction">Introduction<a hidden class="anchor" aria-hidden="true" href="#introduction">#</a></h2>
+<p>I&rsquo;m a software engineer at TSC (Techo Startup Center), and since September 2026 I&rsquo;ve been building <strong>CamWallet v2</strong>. CamWallet is a platform that helps government benefit schemes deliver value to the people they&rsquo;re meant for, and lets those people spend it with approved merchants.</p>
+<p>This post explains what v2 changes and why it helps scheme owners, beneficiaries and merchants. It walks through the ledger design that makes the money auditable, and it ends with what I learned from building the epics with an unattended AI agent loop. Engineers working on payments or wallets should get the most from the ledger section. Teams trying AI-assisted development should get the most from the last two sections.</p>
+<h2 id="what-v2-changes-and-why-it-matters">What v2 changes, and why it matters<a hidden class="anchor" aria-hidden="true" href="#what-v2-changes-and-why-it-matters">#</a></h2>
+<p>Version 1 worked in four steps.</p>
+<ol>
+<li>A scheme defined eligibility rules, and CamWallet decided who qualified.</li>
+<li>People who qualified received value in a wallet.</li>
+<li>They paid merchants through a bank, using Bakong, ABA or ACLEDA.</li>
+<li>The bank confirmed the payment, and CamWallet recorded the outcome.</li>
+</ol>
+<p>Version 2 changes the first and third steps. The scheme owner decides who qualifies in their own system, and CamWallet records that decision without re-checking it. Payment happens inside CamWallet, from a beneficiary&rsquo;s grant to a merchant&rsquo;s balance, with no bank in the path. The ledger, CamDigiKey login, disbursement scheduling, idempotency and audit trail all carry over, so v2 is a milestone on the existing codebase rather than a rewrite.</p>
+<p>Those two changes give each group something concrete.</p>
+<ul>
+<li><strong>Scheme owners</strong> keep control of eligibility, which is their policy decision anyway. CamWallet makes sure the money is spent only with approved merchants, and it tells the owner exactly what to pay each merchant at settlement.</li>
+<li><strong>Beneficiaries</strong> pay by scanning a merchant&rsquo;s QR in the CamDigiKey app, the national digital identity app they already use. The payment completes immediately, and a declined payment always records one specific reason.</li>
+<li><strong>Merchants</strong> see each payment arrive in the Merchant App and know exactly what each scheme owes them. A merchant with several counters can print a labelled QR for each one.</li>
+<li><strong>Auditors and finance teams</strong> can reconcile every scheme with one balance check instead of investigating transactions by hand.</li>
+<li><strong>The project</strong> delivers a working pilot without waiting for a bank integration. Removing the bank also removed the payment-gateway clients, the eligibility engine and the registry lookup. For a four-week build at pilot volume, Postgres replaced most of the Postgres, MinIO and Kafka stack in the original proposal.</li>
+</ul>
+<h2 id="the-ledger">The ledger<a hidden class="anchor" aria-hidden="true" href="#the-ledger">#</a></h2>
+<p>Everything is a transfer between two accounts. Entries are appended and never changed, and replaying an account&rsquo;s entries explains its balance. That turns reconciliation into arithmetic.</p>
+<table>
+  <thead>
+      <tr>
+          <th>Account</th>
+          <th>What it holds</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><code>scheme:{id}:expenditure</code></td>
+          <td>Total ever granted in the scheme</td>
+      </tr>
+      <tr>
+          <td><code>grant:{id}</code></td>
+          <td>One grant&rsquo;s unspent value</td>
+      </tr>
+      <tr>
+          <td><code>payable:{scheme}:{merchant}</code></td>
+          <td>What the scheme owes one merchant</td>
+      </tr>
+      <tr>
+          <td><code>scheme:{id}:paid_out</code></td>
+          <td>Total recorded as paid to merchants</td>
+      </tr>
+      <tr>
+          <td><code>scheme:{id}:returned</code></td>
+          <td>Unspent value from expired grants</td>
+      </tr>
+  </tbody>
+</table>
+<p>Each enrolment is a <strong>grant</strong> with its own amount and validity dates, and a beneficiary can hold several. A wallet isn&rsquo;t an account. It is the set of a beneficiary&rsquo;s grants in one scheme, and its spendable balance counts only grants that are valid today. Payables are kept per scheme, so a merchant serving two schemes has two payables that settle separately.</p>
+<table>
+  <thead>
+      <tr>
+          <th>Operation</th>
+          <th>From → To</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Disburse</td>
+          <td>scheme expenditure → grant</td>
+      </tr>
+      <tr>
+          <td>Pay</td>
+          <td>grant (soonest end date first) → payable</td>
+      </tr>
+      <tr>
+          <td>Record payout</td>
+          <td>payable → scheme paid_out</td>
+      </tr>
+      <tr>
+          <td>Return expired value</td>
+          <td>grant → scheme returned</td>
+      </tr>
+  </tbody>
+</table>
+<p>Expenditure moves only on disbursement, so each scheme satisfies one identity that we check in a single query and assert in a test.</p>
+<pre tabindex="0"><code>granted = Σ grant balances + Σ payables + paid_out + returned
+</code></pre><h2 id="keeping-it-correct-in-postgres">Keeping it correct in Postgres<a hidden class="anchor" aria-hidden="true" href="#keeping-it-correct-in-postgres">#</a></h2>
+<p>With no bank involved, a payment is one ACID transaction in one database. It needs no distributed transaction and no compensating action. A few rules protect the ledger.</p>
+<ul>
+<li><strong>Entries are immutable.</strong> A trigger rejects <code>UPDATE</code> and <code>DELETE</code> on ledger entries, so a correction is always a new reversing entry.</li>
+<li><strong>Cached balances change atomically.</strong> Grant and payable balances are cached for payment checks. They change only inside one posting method, through <code>SET balance = balance + :delta</code>, never through a read-modify-write in Java. A test asserts that each cached balance equals the sum of its entries.</li>
+<li><strong>Every transfer balances.</strong> The posting code rejects an unbalanced set of entries before writing.</li>
+<li><strong>Locks guard the checks.</strong> A payment locks the beneficiary&rsquo;s wallet row before reading any grant, and a dynamic QR is locked first so it can&rsquo;t be paid twice.</li>
+<li><strong>Money is exact.</strong> Amounts are <code>numeric(19,4)</code> and always carry a currency, and a posting across two currencies is rejected.</li>
+</ul>
+<p>Each declined payment carries exactly one code from a fixed list, such as <code>QR_EXPIRED</code>, <code>MERCHANT_NOT_PARTICIPATING</code>, <code>CREDIT_EXPIRED</code> or <code>INSUFFICIENT_BALANCE</code>. Reports can group declines by reason from day one, and adding a code later is cheap.</p>
+<h2 id="building-it-with-an-ai-agent-loop">Building it with an AI agent loop<a hidden class="anchor" aria-hidden="true" href="#building-it-with-an-ai-agent-loop">#</a></h2>
+<p>I implemented the v2 epics with the BMad Method and bmad-loop, a CLI that runs the implementation phase unattended. It picks a story, writes a spec, implements it, runs a compile-and-typecheck gate and moves on. I held retrospectives after Epic 1 (merchant management) and Epic 3 (scheme participation), and both found the same pattern.</p>
+<p>In Epic 1 the loop built all seven stories, plus seven capabilities the pilot didn&rsquo;t need, including member management, server-side paging and an idempotency key. Human review removed them. The feature commit was about 2,500 lines, and the net change after the slim-down was about 550. The loop&rsquo;s own review step never triggered, so every defect was found by a person.</p>
+<p>Epic 3 was smaller and still left about 250 lines on <code>dev</code> that didn&rsquo;t survive. The plan said to build a JSON deserializer that <code>dev</code> already had, and the agent followed the plan. A rule to write minimal tests was overshot at first, and then the trim cut the only tests that checked membership and roles.</p>
+<p>The code compiled and the tests passed in both epics. The cost came from building the wrong amount of the right thing. The loop is good at matching a plan, but it doesn&rsquo;t notice when the plan has gone stale or asks for more than the pilot needs.</p>
+<h2 id="what-you-can-take-from-this">What you can take from this<a hidden class="anchor" aria-hidden="true" href="#what-you-can-take-from-this">#</a></h2>
+<p>These are the lessons I&rsquo;d pass on to anyone building something similar.</p>
+<ul>
+<li><strong>Look for the one or two assumptions that drive the design.</strong> Writing v2 down as two changed steps out of four made every later decision easier to test. If a proposal followed from neither change, it usually belonged in a later phase.</li>
+<li><strong>Keep money movements inside one database when you can.</strong> A single transaction removes the hardest failure cases in payments.</li>
+<li><strong>Make the ledger append-only and prove it balances.</strong> An immutable entry table plus one reconciliation identity gives auditors a check they can run themselves.</li>
+<li><strong>Use a closed list of decline reasons.</strong> It costs nothing at the start and saves a painful clean-up later.</li>
+<li><strong>With an agent loop, do the judgement work before the run.</strong> Write down each story&rsquo;s pilot scope and deferrals, check the plan against the current branch, and name the tests that protect something real, such as tenancy and roles, instead of setting a test count.</li>
+<li><strong>Keep a human review gate on purpose.</strong> In both epics, every real defect was found in human review.</li>
+</ul>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="http://radinreth.me/tags/camwallet/">Camwallet</a></li>
+      <li><a href="http://radinreth.me/tags/tsc/">Tsc</a></li>
+      <li><a href="http://radinreth.me/tags/govtech/">Govtech</a></li>
+      <li><a href="http://radinreth.me/tags/ledger/">Ledger</a></li>
+      <li><a href="http://radinreth.me/tags/payments/">Payments</a></li>
+      <li><a href="http://radinreth.me/tags/ai-assisted-development/">Ai-Assisted-Development</a></li>
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="http://radinreth.me/">Radin Reth</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Govtech on Radin Reth</title>
+    <link>http://radinreth.me/tags/govtech/</link>
+    <description>Recent content in Govtech on Radin Reth</description>
+    <generator>Hugo -- 0.147.3</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 20 Oct 2026 00:00:00 +0000</lastBuildDate>
+    <atom:link href="http://radinreth.me/tags/govtech/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>CamWallet v2: Benefit Payments on a Closed Ledger</title>
+      <link>http://radinreth.me/posts/camwallet-v2-benefit-payments/</link>
+      <pubDate>Tue, 20 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>http://radinreth.me/posts/camwallet-v2-benefit-payments/</guid>
+      <description>How CamWallet v2 lets government schemes pay beneficiaries and merchants in real time without a bank integration, why a double-entry ledger makes it auditable, and what building it with an AI agent loop taught me.</description>
+    </item>
+    <item>
+      <title>ESB-MOT: Building Online Tourism Licensing for Cambodia</title>
+      <link>http://radinreth.me/posts/esb-mot-tourism-licensing-platform/</link>
+      <pubDate>Tue, 20 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>http://radinreth.me/posts/esb-mot-tourism-licensing-platform/</guid>
+      <description>What I learned building the Ministry of Tourism&amp;rsquo;s online licensing platform at TSC: what it changes for businesses and the ministry, how one licence moves through five services, and where the bugs actually came from.</description>
+    </item>
+  </channel>
+</rss>
